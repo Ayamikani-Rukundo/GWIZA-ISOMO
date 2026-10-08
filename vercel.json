@@ -5,7 +5,7 @@
       "root": "artifacts/api-server",
       "framework": "express",
       "entrypoint": "src/app.ts",
-      "buildCommand": "pnpm run typecheck && pnpm run build",
+      "buildCommand": "pnpm --dir ../.. run typecheck:libs && pnpm run typecheck && pnpm run build",
       "functions": {
         "src/app.ts": {
           "includeFiles": "dist/private-approval.pdf",
