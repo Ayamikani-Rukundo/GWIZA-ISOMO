@@ -47,6 +47,7 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+.vercel/
 
 # Environment files and local credentials
 .env

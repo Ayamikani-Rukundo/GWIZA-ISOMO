@@ -190,20 +190,21 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
   /admin/export:
     get:
-      operationId: exportSubmissionsCsv
+      operationId: exportSubmissionsWorkbook
       tags: [admin]
-      summary: Download research submissions as an analysis-friendly CSV
+      summary: Download research submissions as an Excel workbook grouped by respondent type
       responses:
         "200":
-          description: CSV export
+          description: Excel workbook export
           headers:
             Content-Disposition:
               schema:
                 type: string
           content:
-            text/csv:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
               schema:
                 type: string
+                format: binary
         "401":
           description: Administrator sign-in required
           content:

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm run typecheck:vercel && pnpm --filter @workspace/api-server run typecheck && pnpm --filter @workspace/gwiza-research run typecheck && pnpm --filter @workspace/gwiza-research run build",
+  "outputDirectory": "artifacts/gwiza-research/dist/public",
+  "functions": {
+    "server.ts": {
+      "includeFiles": "{Aproval.pdf,artifacts/gwiza-research/dist/public/index.html}",
+      "maxDuration": 30
+    }
+  }
+}

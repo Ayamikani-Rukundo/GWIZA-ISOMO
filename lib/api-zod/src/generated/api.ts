@@ -168,9 +168,9 @@ export const ListQualitativeResponsesResponse = zod.array(ListQualitativeRespons
 
 
 /**
- * @summary Download research submissions as an analysis-friendly CSV
+ * @summary Download research submissions as an Excel workbook grouped by respondent type
  */
-export const ExportSubmissionsCsvResponse = zod.unknown()
+export const ExportSubmissionsWorkbookResponse = zod.unknown()
 
 
 /**

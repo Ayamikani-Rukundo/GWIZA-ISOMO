@@ -1,4 +1,5 @@
 import { Router, type IRouter, type Request, type Response } from "express";
+import ExcelJS from "exceljs";
 import {
   AdminLoginBody,
   AdminLoginResponse,
@@ -44,32 +45,76 @@ const router: IRouter = Router();
 const responseColumns =
   "id,respondent_type,age_group,region,school_setting,submitted_at,survey_version,responses";
 
-function asShortString(value: unknown, maxLength = 120): string | null {
-  if (typeof value !== "string") return null;
-  const cleaned = value.trim();
-  return cleaned ? cleaned.slice(0, maxLength) : null;
-}
+type ResponseFieldKind = "single" | "multiple" | "text";
 
-function validResponsePayload(responses: Record<string, unknown>): boolean {
+const responseFields: Record<RespondentType, Record<string, ResponseFieldKind>> = {
+  student: {
+    ageGroup: "single", schoolSetting: "single", region: "single",
+    wellbeingFrequency: "single", challenges: "multiple", schoolImpact: "single",
+    schoolEffects: "multiple", supportOptions: "multiple", supportAwareness: "single",
+    mentalHealthInformation: "single", helpSeekingComfort: "single",
+    preferredFirstContact: "single", barriers: "multiple", schoolSupportRating: "single",
+    missingSupport: "text", desiredChange: "text", preferredSupportTypes: "multiple",
+    digitalComfort: "single", digitalTrustFactors: "multiple", desiredDigitalSupport: "text",
+  },
+  school: {
+    role: "single", yearsExperience: "single", studentApproachFrequency: "single",
+    staffAwareness: "single", counsellorAvailability: "single",
+    commonChallenges: "multiple", currentSupport: "multiple", supportResponsibility: "multiple",
+    referralEase: "single", studentSupportAwareness: "single", staffTraining: "single",
+    supportBarriers: "multiple", missingSupport: "text", additionalSupport: "text",
+    additionalSupportNeeds: "multiple", technologyAccess: "single", technologyProblem: "text",
+    technologyReplacement: "text", platformConcerns: "multiple",
+  },
+  professional: {
+    professionalRole: "single", experienceAreas: "multiple", referralEffectiveness: "single",
+    serviceBarriers: "multiple", serviceGaps: "text", recommendations: "text",
+    technologyRole: "text", technologyRisks: "multiple",
+  },
+  other: {
+    youthRelationship: "single", observations: "multiple", supportAwareness: "single",
+    perceivedGaps: "text", barriers: "multiple", improvements: "text", recommendations: "text",
+  },
+};
+
+function validResponsePayload(
+  respondentType: RespondentType,
+  responses: Record<string, unknown>,
+): boolean {
+  const allowedFields = responseFields[respondentType];
   const forbiddenKeys = new Set([
-    "name",
-    "fullName",
-    "phone",
-    "phoneNumber",
-    "email",
-    "address",
-    "homeAddress",
-    "schoolName",
-    "exactSchool",
+    "name", "fullname", "phone", "phonenumber", "email", "address",
+    "homeaddress", "schoolname", "exactschool",
   ]);
-  const keys = Object.keys(responses);
-  if (keys.length > 60 || keys.some((key) => forbiddenKeys.has(key))) return false;
+  const entries = Object.entries(responses);
+  if (entries.length > 60) return false;
+
+  for (const [key, value] of entries) {
+    const normalizedKey = key.replace(/[^a-z0-9]/gi, "").toLowerCase();
+    const kind = allowedFields[key];
+    if (!kind || forbiddenKeys.has(normalizedKey)) return false;
+
+    if (kind === "text") {
+      if (typeof value !== "string" || value.length > 4_000) return false;
+    } else if (kind === "multiple") {
+      if (
+        !Array.isArray(value) || value.length > 30 ||
+        value.some((item) => typeof item !== "string" || item.length > 160)
+      ) return false;
+    } else if (typeof value !== "string" || value.length > 160) {
+      return false;
+    }
+  }
 
   try {
     return JSON.stringify(responses).length <= 35_000;
   } catch {
     return false;
   }
+}
+
+function responseKeyForColumn(column: string): string {
+  return column.replace(/_([a-z])/g, (_match, letter: string) => letter.toUpperCase());
 }
 
 function jsonValue(value: unknown): string {
@@ -79,10 +124,74 @@ function jsonValue(value: unknown): string {
   return String(value);
 }
 
-function csvCell(value: unknown): string {
-  let text = jsonValue(value);
-  if (/^[\t\r ]*[=+\-@]/.test(text)) text = `'${text}`;
-  return `"${text.replaceAll('"', '""')}"`;
+function workbookValue(value: unknown): string {
+  const text = jsonValue(value);
+  return /^[\t\r ]*[=+\-@]/.test(text) ? `'${text}` : text;
+}
+
+const workbookSheets: Record<RespondentType, { name: string; columns: string[] }> = {
+  student: {
+    name: "Students",
+    columns: [
+      "wellbeing_frequency", "challenges", "school_impact", "school_effects",
+      "support_options", "support_awareness", "mental_health_information",
+      "help_seeking_comfort", "preferred_first_contact", "barriers",
+      "school_support_rating", "missing_support", "desired_change",
+      "preferred_support_types", "digital_comfort", "digital_trust_factors",
+      "desired_digital_support",
+    ],
+  },
+  school: {
+    name: "School staff",
+    columns: [
+      "role", "years_experience", "student_approach_frequency", "staff_awareness",
+      "common_challenges", "current_support", "counsellor_availability",
+      "support_responsibility", "referral_ease", "student_support_awareness",
+      "staff_training", "support_barriers", "missing_support",
+      "additional_support_needs", "technology_access", "technology_problem",
+      "technology_replacement", "platform_concerns",
+    ],
+  },
+  professional: {
+    name: "Professionals",
+    columns: [
+      "professional_role", "experience_areas", "referral_effectiveness",
+      "service_barriers", "service_gaps", "recommendations", "technology_role",
+      "technology_risks",
+    ],
+  },
+  other: {
+    name: "Other respondents",
+    columns: [
+      "youth_relationship", "observations", "support_awareness", "perceived_gaps",
+      "barriers", "improvements", "recommendations",
+    ],
+  },
+};
+
+const workbookMetadataColumns = [
+  "submission_id", "respondent_type", "age_group", "region", "school_setting",
+  "survey_version", "submitted_at",
+];
+
+function styleWorkbookHeader(worksheet: ExcelJS.Worksheet): void {
+  const header = worksheet.getRow(1);
+  header.font = { bold: true, color: { argb: "FFFFFFFF" } };
+  header.fill = {
+    type: "pattern",
+    pattern: "solid",
+    fgColor: { argb: "FF315F4B" },
+  };
+  header.alignment = { vertical: "middle", wrapText: true };
+  header.height = 32;
+  worksheet.views = [{ state: "frozen", ySplit: 1 }];
+  worksheet.autoFilter = {
+    from: { row: 1, column: 1 },
+    to: { row: 1, column: worksheet.columnCount },
+  };
+  worksheet.columns.forEach((column) => {
+    column.width = Math.min(36, Math.max(18, String(column.header ?? "").length + 3));
+  });
 }
 
 function sendDatabaseError(
@@ -106,7 +215,10 @@ function sendDatabaseError(
 
 router.post("/survey-submissions", async (request, response): Promise<void> => {
   const parsed = CreateSurveySubmissionBody.safeParse(request.body);
-  if (!parsed.success || !validResponsePayload(parsed.data?.responses ?? {})) {
+  if (
+    !parsed.success ||
+    !validResponsePayload(parsed.data.respondentType, parsed.data.responses)
+  ) {
     response.status(400).json({
       error:
         "Please check your answers and remove any identifying information before submitting.",
@@ -115,27 +227,24 @@ router.post("/survey-submissions", async (request, response): Promise<void> => {
   }
 
   const { respondentType, responses } = parsed.data;
-  const row = {
-    respondent_type: respondentType,
-    age_group: asShortString(responses.ageGroup),
-    region: asShortString(responses.region),
-    school_setting: asShortString(responses.schoolSetting),
-    survey_version: `gwiza_${respondentType}_v1`,
-    consent_acknowledged: true,
-    responses,
-  };
+  const surveyVersion = `gwiza_${respondentType}_${respondentType === "school" || respondentType === "professional" ? "v2" : "v1"}`;
 
   try {
-    const { data } = await supabaseRequest<
-      Array<{ id: string; submitted_at: string }>
-    >("survey_submissions?select=id,submitted_at", {
+    const { data } = await supabaseRequest<{
+      id: string;
+      submitted_at: string;
+    }>("rpc/gwiza_create_survey_submission", {
       method: "POST",
-      headers: { prefer: "return=representation" },
-      body: JSON.stringify(row),
+      body: JSON.stringify({
+        p_respondent_type: respondentType,
+        p_responses: responses,
+        p_survey_version: surveyVersion,
+        p_consent_acknowledged: true,
+      }),
     });
     const result = CreateSurveySubmissionResponse.parse({
-      id: data?.[0]?.id,
-      submittedAt: data?.[0]?.submitted_at,
+      id: data?.id,
+      submittedAt: data?.submitted_at,
     });
     response.status(201).json(result);
   } catch (error) {
@@ -367,59 +476,35 @@ router.get(
         if (!data || data.length < batchSize) break;
       }
 
-      const columns = [
-        "submission_id",
-        "respondent_type",
-        "age_group",
-        "region",
-        "school_setting",
-        "wellbeing_frequency",
-        "challenges",
-        "school_impact",
-        "school_effects",
-        "support_options",
-        "support_awareness",
-        "mental_health_information",
-        "help_seeking_comfort",
-        "preferred_first_contact",
-        "barriers",
-        "school_support_rating",
-        "missing_support",
-        "desired_change",
-        "preferred_support_types",
-        "digital_comfort",
-        "digital_trust_factors",
-        "desired_digital_support",
-        "role",
-        "years_experience",
-        "common_challenges",
-        "current_support",
-        "referral_ease",
-        "student_approach_frequency",
-        "support_responsibility",
-        "student_support_awareness",
-        "staff_training",
-        "support_barriers",
-        "additional_support",
-        "technology_access",
-        "technology_problem",
-        "technology_replacement",
-        "platform_concerns",
-        "service_gaps",
-        "technology_role",
-        "technology_risks",
-        "youth_relationship",
-        "observations",
-        "support_awareness",
-        "perceived_gaps",
-        "improvements",
-        "recommendations",
-        "survey_version",
-        "submitted_at",
-      ];
-      const csv = [
-        columns.map(csvCell).join(","),
-        ...allRows.map((item) => {
+      const workbook = new ExcelJS.Workbook();
+      workbook.creator = "GWIZA Research";
+      workbook.created = new Date();
+      const summary = workbook.addWorksheet("Summary");
+      summary.addRow(["GWIZA Research submissions"]);
+      summary.addRow(["Generated at", new Date().toISOString()]);
+      summary.addRow([]);
+      summary.addRow(["Respondent type", "Responses", "Worksheet"]);
+      for (const type of Object.keys(workbookSheets) as RespondentType[]) {
+        summary.addRow([
+          type,
+          allRows.filter((item) => item.respondent_type === type).length,
+          workbookSheets[type].name,
+        ]);
+      }
+      summary.mergeCells("A1:C1");
+      summary.getCell("A1").font = { bold: true, size: 16, color: { argb: "FF315F4B" } };
+      summary.getRow(4).font = { bold: true };
+      summary.getColumn(1).width = 30;
+      summary.getColumn(2).width = 18;
+      summary.getColumn(3).width = 24;
+
+      for (const type of Object.keys(workbookSheets) as RespondentType[]) {
+        const definition = workbookSheets[type];
+        const worksheet = workbook.addWorksheet(definition.name);
+        const columns = [...workbookMetadataColumns, ...definition.columns];
+        worksheet.addRow(columns);
+        for (const item of allRows) {
+          if (item.respondent_type !== type) continue;
           const values: Record<string, unknown> = {
             submission_id: item.id,
             respondent_type: item.respondent_type,
@@ -430,18 +515,25 @@ router.get(
             submitted_at: item.submitted_at,
             ...item.responses,
           };
-          return columns.map((column) => csvCell(values[column])).join(",");
-        }),
-      ].join("\r\n");
+          worksheet.addRow(columns.map((column) =>
+            workbookValue(values[column] ?? values[responseKeyForColumn(column)]),
+          ));
+        }
+        styleWorkbookHeader(worksheet);
+      }
 
+      const buffer = await workbook.xlsx.writeBuffer();
       response
         .status(200)
-        .setHeader("content-type", "text/csv; charset=utf-8")
+        .setHeader(
+          "content-type",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
         .setHeader(
           "content-disposition",
-          `attachment; filename="gwiza-research-${new Date().toISOString().slice(0, 10)}.csv"`,
+          `attachment; filename="gwiza-research-${new Date().toISOString().slice(0, 10)}.xlsx"`,
         )
-        .send(`\uFEFF${csv}`);
+        .send(Buffer.from(buffer));
     } catch (error) {
       sendDatabaseError(
         request,

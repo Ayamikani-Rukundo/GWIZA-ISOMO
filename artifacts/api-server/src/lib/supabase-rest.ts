@@ -14,7 +14,9 @@ export class SupabaseRequestError extends Error {
 }
 
 function getSupabaseCredentials(): { url: string; key: string } {
-  const url = process.env.SUPABASE_URL?.replace(/\/+$/, "");
+  const url = process.env.SUPABASE_URL?.trim()
+    .replace(/\/rest\/v1\/?$/i, "")
+    .replace(/\/+$/, "");
   const key = process.env.SUPABASE_SECRET_KEY;
   if (!url || !key) {
     throw new SupabaseRequestError("Research database is not configured.", 503);

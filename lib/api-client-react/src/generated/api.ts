@@ -702,7 +702,7 @@ export function useListQualitativeResponses<TData = Awaited<ReturnType<typeof li
 
 
 
-export const getExportSubmissionsCsvUrl = () => {
+export const getExportSubmissionsWorkbookUrl = () => {
 
 
 
@@ -711,11 +711,11 @@ export const getExportSubmissionsCsvUrl = () => {
 }
 
 /**
- * @summary Download research submissions as an analysis-friendly CSV
+ * @summary Download research submissions as an Excel workbook grouped by respondent type
  */
-export const exportSubmissionsCsv = async ( options?: Parameters<typeof customFetch>[1]): Promise<string> => {
+export const exportSubmissionsWorkbook = async ( options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
 
-  return customFetch<string>(getExportSubmissionsCsvUrl(),
+  return customFetch<Blob>(getExportSubmissionsWorkbookUrl(),
   {
     ...options,
     method: 'GET'
@@ -728,45 +728,45 @@ export const exportSubmissionsCsv = async ( options?: Parameters<typeof customFe
 
 
 
-export const getExportSubmissionsCsvQueryKey = () => {
+export const getExportSubmissionsWorkbookQueryKey = () => {
     return [
     `/api/admin/export`
     ] as const;
     }
 
 
-export const getExportSubmissionsCsvQueryOptions = <TData = Awaited<ReturnType<typeof exportSubmissionsCsv>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof exportSubmissionsCsv>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getExportSubmissionsWorkbookQueryOptions = <TData = Awaited<ReturnType<typeof exportSubmissionsWorkbook>>, TError = ErrorType<ErrorResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof exportSubmissionsWorkbook>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getExportSubmissionsCsvQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getExportSubmissionsWorkbookQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof exportSubmissionsCsv>>> = ({ signal }) => exportSubmissionsCsv({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof exportSubmissionsWorkbook>>> = ({ signal }) => exportSubmissionsWorkbook({ signal, ...requestOptions });
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof exportSubmissionsCsv>>, TError, TData> & { queryKey: QueryKey }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof exportSubmissionsWorkbook>>, TError, TData> & { queryKey: QueryKey }
 }
 
-export type ExportSubmissionsCsvQueryResult = NonNullable<Awaited<ReturnType<typeof exportSubmissionsCsv>>>
-export type ExportSubmissionsCsvQueryError = ErrorType<ErrorResponse>
+export type ExportSubmissionsWorkbookQueryResult = NonNullable<Awaited<ReturnType<typeof exportSubmissionsWorkbook>>>
+export type ExportSubmissionsWorkbookQueryError = ErrorType<ErrorResponse>
 
 
 /**
- * @summary Download research submissions as an analysis-friendly CSV
+ * @summary Download research submissions as an Excel workbook grouped by respondent type
  */
 
-export function useExportSubmissionsCsv<TData = Awaited<ReturnType<typeof exportSubmissionsCsv>>, TError = ErrorType<ErrorResponse>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof exportSubmissionsCsv>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export function useExportSubmissionsWorkbook<TData = Awaited<ReturnType<typeof exportSubmissionsWorkbook>>, TError = ErrorType<ErrorResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof exportSubmissionsWorkbook>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getExportSubmissionsCsvQueryOptions(options)
+  const queryOptions = getExportSubmissionsWorkbookQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
