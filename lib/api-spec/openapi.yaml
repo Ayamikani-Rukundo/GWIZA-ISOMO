@@ -3,20 +3,23 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: GWIZA Research survey submission and protected research administration API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: surveys
+    description: Anonymous research survey submissions
+  - name: admin
+    description: Protected research administration
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +27,220 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /survey-submissions:
+    post:
+      operationId: createSurveySubmission
+      tags: [surveys]
+      summary: Submit an anonymous research survey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SurveySubmissionInput"
+      responses:
+        "201":
+          description: Submission recorded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmissionReceipt"
+        "400":
+          description: Invalid submission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Research database unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/session:
+    get:
+      operationId: getAdminSession
+      tags: [admin]
+      summary: Check whether the current session is an authenticated administrator
+      responses:
+        "200":
+          description: Session status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Sign in a research administrator
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginInput"
+      responses:
+        "200":
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "401":
+          description: Credentials were not accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/logout:
+    post:
+      operationId: adminLogout
+      tags: [admin]
+      summary: End the administrator session
+      responses:
+        "200":
+          description: Signed out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+  /admin/overview:
+    get:
+      operationId: getAdminOverview
+      tags: [admin]
+      summary: Get privacy-conscious research dashboard aggregates
+      responses:
+        "200":
+          description: Dashboard aggregates
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminOverview"
+        "401":
+          description: Administrator sign-in required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/submissions:
+    get:
+      operationId: listAdminSubmissions
+      tags: [admin]
+      summary: List research submissions for an administrator
+      parameters:
+        - name: respondentType
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/RespondentType"
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+            maxLength: 120
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 25
+      responses:
+        "200":
+          description: A page of submissions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmissionPage"
+        "401":
+          description: Administrator sign-in required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/qualitative:
+    get:
+      operationId: listQualitativeResponses
+      tags: [admin]
+      summary: List free-text research responses
+      responses:
+        "200":
+          description: Qualitative responses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QualitativeResponse"
+        "401":
+          description: Administrator sign-in required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/export:
+    get:
+      operationId: exportSubmissionsCsv
+      tags: [admin]
+      summary: Download research submissions as an analysis-friendly CSV
+      responses:
+        "200":
+          description: CSV export
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+          content:
+            text/csv:
+              schema:
+                type: string
+        "401":
+          description: Administrator sign-in required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /admin/submissions/{id}:
+    delete:
+      operationId: deleteAdminSubmission
+      tags: [admin]
+      summary: Permanently delete one research submission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Submission deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          description: Administrator sign-in required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Submission not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HealthStatus:
@@ -31,6 +248,189 @@ components:
       properties:
         status:
           type: string
+      required: [status]
+    RespondentType:
+      type: string
+      enum: [student, school, professional, other]
+    SurveySubmissionInput:
+      type: object
+      additionalProperties: false
+      properties:
+        respondentType:
+          $ref: "#/components/schemas/RespondentType"
+        consentAcknowledged:
+          type: boolean
+          const: true
+        responses:
+          type: object
+          additionalProperties: true
+      required: [respondentType, consentAcknowledged, responses]
+    SubmissionReceipt:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        submittedAt:
+          type: string
+          format: date-time
+      required: [id, submittedAt]
+    AdminLoginInput:
+      type: object
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        password:
+          type: string
+          minLength: 1
+          maxLength: 256
+      required: [email, password]
+    AdminSession:
+      type: object
+      properties:
+        authenticated:
+          type: boolean
+        email:
+          type: [string, "null"]
+          format: email
+      required: [authenticated, email]
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+    CountItem:
+      type: object
+      properties:
+        label:
+          type: string
+        count:
+          type: integer
+      required: [label, count]
+    AdminOverview:
+      type: object
+      properties:
+        totalResponses:
+          type: integer
+        responsesToday:
+          type: integer
+        latestSubmission:
+          type: [string, "null"]
+          format: date-time
+        respondentTypes:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        regions:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        schoolSettings:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        challenges:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        supportRatings:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        helpSeekingComfort:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        barriers:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        preferredSupportTypes:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        digitalComfort:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        digitalTrustFactors:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
       required:
-        - status
-
+        - totalResponses
+        - responsesToday
+        - latestSubmission
+        - respondentTypes
+        - regions
+        - schoolSettings
+        - challenges
+        - supportRatings
+        - helpSeekingComfort
+        - barriers
+        - preferredSupportTypes
+        - digitalComfort
+        - digitalTrustFactors
+    SurveySubmission:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        respondentType:
+          $ref: "#/components/schemas/RespondentType"
+        ageGroup:
+          type: [string, "null"]
+        region:
+          type: [string, "null"]
+        schoolSetting:
+          type: [string, "null"]
+        submittedAt:
+          type: string
+          format: date-time
+        surveyVersion:
+          type: string
+        responses:
+          type: object
+          additionalProperties: true
+      required: [id, respondentType, ageGroup, region, schoolSetting, submittedAt, surveyVersion, responses]
+    SubmissionPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SurveySubmission"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required: [items, total, page, pageSize]
+    QualitativeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        respondentType:
+          $ref: "#/components/schemas/RespondentType"
+        submittedAt:
+          type: string
+          format: date-time
+        question:
+          type: string
+        answer:
+          type: string
+      required: [id, respondentType, submittedAt, question, answer]

@@ -5,7 +5,11 @@
  * GWIZA Research survey submission and protected research administration API
  * OpenAPI spec version: 0.1.0
  */
+import type { SurveySubmission } from './surveySubmission';
 
-export interface HealthStatus {
-  status: string;
+export interface SubmissionPage {
+  items: SurveySubmission[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
