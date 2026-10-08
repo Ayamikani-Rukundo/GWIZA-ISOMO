@@ -93,7 +93,7 @@ If your default GitHub branch is not `main`, substitute its actual name. The pus
 
 ### Vercel
 
-The root `vercel.json` builds the Vite app and deploys the Express API as a Vercel Node function. The Express fallback serves `index.html` for client-side routes such as `/survey/student`, `/admin/login`, and `/admin`; `/api/*` continues to reach the backend. Import the GitHub repository into Vercel with the **repository root** as the Root Directory. Leave the Vercel Build and Output settings at their `vercel.json` values. The project requires Node 22.12+ and pnpm 9.15.9; the root package and lockfile pin these expectations.
+The root `vercel.json` defines two Vercel Services: `api-server` (Express) and `gwiza-research` (Vite). Public `/api/*` requests route to Express; all other public paths route to the Vite service, whose SPA rewrite serves `index.html` on direct page loads such as `/survey/student`, `/admin/login`, and `/admin`. The API is public only under `/api/*`; the website is public on all remaining paths. There are no internal server-to-server calls, so no service bindings are required. The mockup sandbox is not deployed or publicly routed. Import the GitHub repository into Vercel with the **repository root** as the Root Directory. Leave Vercel build settings to the per-service settings in `vercel.json`. The project requires Node 22.12+ and pnpm 9.15.9; the root package and lockfile pin these expectations.
 
 In Vercel, open **Project Settings → Environment Variables** and add these values for Production (add Preview too only if you want preview deployments to connect to the real research database):
 
