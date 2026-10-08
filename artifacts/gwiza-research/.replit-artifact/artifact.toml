@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "GWIZA Research"
+description = "A mobile-first action research platform for collecting anonymous perspectives on mental-health support for secondary-school students in Rwanda, with separate respondent surveys and a protected research dashboard."
+version = "1.0.0"
+id = "artifacts/gwiza-research"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21418
+
+[services.development]
+run = "pnpm --filter @workspace/gwiza-research run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/gwiza-research", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/gwiza-research/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21418"
+BASE_PATH = "/"

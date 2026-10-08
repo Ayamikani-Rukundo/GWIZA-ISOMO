@@ -1,0 +1,1186 @@
+Build a polished, lightweight full-stack web application called **GWIZA Research** for the Gwiza Startup team.
+
+## 1. PROJECT PURPOSE
+
+This is a **research data-collection website**, not the final mental-health product.
+
+Gwiza Startup is conducting action research on:
+
+**Mental Health Support Gap → Secondary-School Students → Rwanda**
+
+Our main research question is:
+
+**“What is the mental-health support gap among secondary-school students in Rwanda, and what can be done to improve the support available to them?”**
+
+The purpose of this website is to collect primary research data that helps us understand:
+
+- students' experiences and challenges
+- how mental-health challenges affect school life
+- awareness of available support
+- who students turn to when they need help
+- barriers to seeking support
+- what support currently exists
+- what students feel is missing
+- what kind of support students would actually use
+- whether technology could realistically improve access
+- what teachers, counsellors, school staff, and professionals observe
+
+IMPORTANT:
+
+Do NOT assume that an AI chatbot, mobile app, online psychologist service, peer-support platform, or any other technology is automatically the solution.
+
+The research must help us discover the problem first.
+
+The research flow is:
+
+**PROBLEM → CURRENT SUPPORT → GAP → STUDENT NEEDS → POSSIBLE SOLUTIONS**
+
+---
+
+# 2. DESIGN PHILOSOPHY
+
+The website should look like it was designed by a strong professional product designer and developer.
+
+It must NOT look like:
+- a generic AI-generated landing page
+- an overly flashy startup template
+- a boring Google Forms clone
+- a static HTML page
+- an exaggerated “AI SaaS” dashboard
+- a website overloaded with gradients, glassmorphism, floating blobs, or unnecessary animations
+
+Instead, make it feel:
+
+- calm
+- trustworthy
+- modern
+- human
+- research-oriented
+- youthful without looking childish
+- professional enough for schools and researchers
+- visually distinctive but restrained
+
+The visual identity should communicate:
+
+**“A serious research project trying to understand students.”**
+
+Use a warm, accessible color system.
+
+Suggested direction:
+- deep forest/teal as the primary color
+- warm off-white background
+- muted green/blue secondary tones
+- very limited accent color
+- strong dark text
+- generous whitespace
+
+Do not use neon colors.
+
+Do not use excessive gradients.
+
+Use a modern readable font such as Inter, Geist, DM Sans, or a similar clean sans-serif.
+
+Use subtle transitions only where they improve usability.
+
+---
+
+# 3. TECH STACK
+
+Keep the project lightweight and easy to download and continue locally.
+
+Preferred stack:
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Supabase
+- Recharts or another lightweight charting library
+- React Router if routing is needed
+
+Do not add unnecessary frameworks or packages.
+
+The application must work after being downloaded and run locally.
+
+Provide:
+- clear README
+- `.env.example`
+- sensible project structure
+- database schema / SQL migration
+- setup instructions
+- no credentials committed to source control
+
+---
+
+# 4. SECURITY — VERY IMPORTANT
+
+NEVER hardcode Supabase secret/service-role credentials into frontend code.
+
+NEVER put secret keys in:
+- React components
+- JavaScript bundles
+- `.env` variables prefixed with `VITE_`
+- GitHub
+- public source files
+
+Use environment variables and server-side handling for privileged operations.
+
+Use the Supabase publishable/anonymous client key only where appropriate and protect database tables using Row Level Security.
+
+For administrative operations such as:
+- downloading all research data
+- deleting submissions
+- viewing sensitive aggregate information
+
+use a secure server-side/admin mechanism.
+
+The user previously supplied Supabase credentials to the developer, but those credentials MUST NOT be copied into generated code or displayed in the UI.
+
+Use placeholders such as:
+
+SUPABASE_URL=
+SUPABASE_PUBLISHABLE_KEY=
+SUPABASE_SECRET_KEY=
+
+in `.env.example`.
+
+Also create `.gitignore` entries for `.env`, `.env.local`, and other secret files.
+
+---
+
+# 5. MAIN WEBSITE STRUCTURE
+
+Create these main routes:
+
+/
+
+ /survey
+
+ /survey/student
+
+ /survey/school
+
+ /survey/professional
+
+ /survey/other
+
+ /thank-you
+
+ /admin/login
+
+ /admin
+
+Do not create dozens of unnecessary pages.
+
+---
+
+# 6. LANDING PAGE
+
+The landing page should immediately explain the project without being too wordy.
+
+Hero:
+
+**GWIZA**
+
+**Understanding Student Mental Health in Rwanda**
+
+Short explanation:
+
+“We're researching how secondary-school students experience mental health, what support is available to them, and where the gaps are.”
+
+Primary CTA:
+
+**Take the research survey**
+
+Then a respondent selection section:
+
+### Who are you?
+
+Card 1:
+**Secondary Student**
+“Tell us about your experience, awareness, and access to support.”
+
+Card 2:
+**Teacher / School Staff**
+“Help us understand what schools see and what support is available.”
+
+Card 3:
+**Mental-Health / Relevant Professional**
+“Share your perspective on adolescent mental-health support and access.”
+
+Card 4:
+**Other**
+“For parents, youth workers, researchers, community members, or others with relevant experience.”
+
+Make these cards visually attractive and interactive.
+
+Include a small research notice:
+
+“This survey is for research purposes. You may skip questions you do not wish to answer. We are not providing diagnosis or treatment through this website.”
+
+Do not ask users for their name, phone number, exact home address, or unnecessary identifying information.
+
+---
+
+# 7. STUDENT SURVEY
+
+The student survey is the most important part of the research.
+
+Target:
+
+**Secondary-school students in Rwanda**
+
+Keep it approximately 5–7 minutes.
+
+Do NOT make every question mandatory.
+
+Use a progress indicator:
+
+**1 of 6**
+
+or a percentage progress bar.
+
+Break the survey into logical sections.
+
+## SECTION A — ABOUT YOU
+
+Collect only broad demographic/context variables necessary for research.
+
+Questions:
+
+1. What is your age group?
+- Under 13
+- 13–15
+- 16–18
+- 19 or above
+- Prefer not to say
+
+2. What is your school setting?
+- Day school
+- Boarding school
+- Both / mixed
+- Prefer not to say
+
+3. Which general area of Rwanda is your school located in?
+- Kigali City
+- Northern Province
+- Southern Province
+- Eastern Province
+- Western Province
+- Prefer not to say
+
+Do not ask for school name in the first version unless the research team later determines that it is genuinely necessary.
+
+## SECTION B — STUDENT WELL-BEING
+
+We are interested in students' experiences, NOT diagnosing mental illness.
+
+4. During the past school term, how often have you felt overwhelmed by school or personal responsibilities?
+
+- Never
+- Rarely
+- Sometimes
+- Often
+- Very often
+- Prefer not to say
+
+5. What kinds of challenges have affected your well-being recently?
+
+Allow multiple selections:
+
+- Academic pressure
+- Examinations
+- Family responsibilities
+- Relationships/friendships
+- Bullying or discrimination
+- Financial difficulties
+- Loneliness or isolation
+- Pressure about the future
+- Lack of sleep/rest
+- Changes at home
+- Social pressure
+- Other
+- Prefer not to say
+
+6. How much do these challenges affect your school life?
+
+- Not at all
+- A little
+- Somewhat
+- A lot
+- Extremely
+- Prefer not to say
+
+7. In what ways can these challenges affect students at school?
+
+Multiple choice:
+
+- Difficulty concentrating
+- Reduced motivation
+- Missing classes
+- Difficulty completing schoolwork
+- Difficulty participating in class
+- Social withdrawal
+- Conflict with others
+- Feeling unable to keep up
+- Other
+- Prefer not to say
+
+Do not ask for graphic descriptions of distress or self-harm.
+
+## SECTION C — AWARENESS OF SUPPORT
+
+8. If a student at your school needed someone to talk to about a personal or emotional problem, where could they go?
+
+Multiple selections:
+
+- Teacher
+- School counsellor
+- Parent/guardian
+- Friend
+- School administration
+- Health centre/health professional
+- Religious/community leader
+- Online resources
+- I don't know
+- Other
+
+9. How aware are you of the mental-health support available to students at your school?
+
+- Not at all aware
+- Slightly aware
+- Moderately aware
+- Very aware
+- Extremely aware
+- My school does not appear to offer this support
+- Not sure
+
+10. Have you ever received information at school about mental health or where students can get help?
+
+- Yes
+- No
+- Not sure
+- Prefer not to say
+
+## SECTION D — HELP-SEEKING
+
+11. If you were experiencing a difficult personal or emotional problem, how comfortable would you feel asking for help?
+
+- Very uncomfortable
+- Uncomfortable
+- Neutral
+- Comfortable
+- Very comfortable
+- Not sure
+
+12. Who would you feel most comfortable approaching first?
+
+- Friend
+- Parent/guardian
+- Teacher
+- School counsellor
+- Health professional
+- Religious/community leader
+- Online service
+- Nobody
+- Other
+
+13. What might stop a student from seeking help?
+
+Multiple selections:
+
+- Fear of being judged
+- Stigma
+- Not knowing where to go
+- Not trusting the available person
+- Concern about privacy
+- Fear that others will find out
+- Cost
+- Lack of time
+- Support is not available
+- Family attitudes
+- School environment
+- Believing the problem is not serious enough
+- Not knowing how to ask for help
+- Other
+- Prefer not to say
+
+## SECTION E — WHAT IS MISSING?
+
+14. How well do you think your school currently supports students' mental and emotional well-being?
+
+1–5 scale:
+
+1 = Very poorly
+2 = Poorly
+3 = Fairly
+4 = Well
+5 = Very well
+Not sure
+
+15. What do you think is missing from the support currently available to students?
+
+Open-ended.
+
+16. If you could change ONE thing about mental-health support for students at your school, what would you change?
+
+Open-ended.
+
+## SECTION F — POSSIBLE FUTURE SUPPORT
+
+Do NOT imply that technology is the answer.
+
+17. Which forms of support would students be most likely to use?
+
+Multiple selections:
+
+- One-on-one conversation with a counsellor
+- Small peer-support groups
+- Trusted teacher support
+- Anonymous online information
+- Online conversation with a trained professional
+- Mental-health education sessions
+- A private digital platform
+- Helpline/chat support
+- Workshops for students
+- Support for parents
+- Other
+- Not sure
+
+18. Would you be comfortable using a digital platform to learn about mental health or find support?
+
+- Definitely not
+- Probably not
+- Not sure
+- Probably yes
+- Definitely yes
+
+19. What would make a digital support platform feel trustworthy to you?
+
+Multiple selections:
+
+- Privacy
+- Anonymity
+- Qualified professionals
+- School involvement
+- Ability to speak to a real person
+- Clear information
+- Easy to use
+- Available in Kinyarwanda
+- Available in English
+- Works with limited internet
+- Other
+
+20. What would you want such a platform to help you with?
+
+Open-ended.
+
+This last question is important because it can help us discover what technology should actually solve rather than assuming the solution beforehand.
+
+---
+
+# 8. SCHOOL STAFF / TEACHER / COUNSELLOR SURVEY
+
+Create a separate shorter questionnaire.
+
+Questions should investigate:
+
+- role at school
+- years of experience
+- awareness of student mental-health needs
+- common challenges they observe
+- existing support
+- availability of counsellors
+- referral processes
+- barriers to providing support
+- student awareness
+- staff training
+- what they believe is missing
+- what would make support easier
+- whether technology could help
+- what technology should NOT replace
+
+Example questions:
+
+1. What is your role?
+2. How many years have you worked in education?
+3. How frequently do students approach staff with personal or emotional difficulties?
+4. What challenges do students most commonly present with?
+5. What mental-health support is currently available at your school?
+6. Who is primarily responsible for supporting students?
+7. How easy is it to refer a student to appropriate professional support?
+8. What are the biggest barriers to providing effective support?
+9. How aware do students seem to be of available support?
+10. What do you think is currently missing?
+11. What additional support would schools need?
+12. Could technology improve access or coordination?
+13. If yes, what problem should technology solve?
+14. What concerns would you have about a digital mental-health platform for students?
+
+Include several multiple-choice/rating questions and 2–3 open-ended questions.
+
+---
+
+# 9. PROFESSIONAL SURVEY
+
+For mental-health professionals or people with relevant professional experience.
+
+Focus on:
+
+- adolescent mental-health needs
+- access to services
+- school referral systems
+- barriers
+- stigma
+- early identification
+- school-based support
+- gaps between need and available support
+- what schools can realistically provide
+- where technology could help
+- limitations/risks of technology
+- recommendations for a student-focused solution
+
+Do not ask professionals to reveal confidential patient information.
+
+---
+
+# 10. OTHER RESPONDENTS
+
+Keep this survey short.
+
+Ask:
+
+- relationship to students/youth
+- what they observe
+- awareness of available support
+- perceived gaps
+- barriers
+- what could improve support
+- optional open-ended recommendations
+
+---
+
+# 11. QUESTIONNAIRE DESIGN PRINCIPLES
+
+Follow these principles carefully.
+
+Questions must:
+
+- be simple
+- use natural language
+- avoid academic jargon
+- avoid leading respondents toward a particular answer
+- avoid double-barrelled questions
+- avoid unnecessary personal information
+- provide “Prefer not to say” where appropriate
+- allow “Other”
+- use logical ordering
+- combine closed questions with a small number of open questions
+
+Avoid:
+
+“Do you agree that schools need better mental-health technology?”
+
+This is leading.
+
+Instead ask:
+
+“What do you think is missing from the support currently available?”
+
+Then later ask about technology separately.
+
+Use a mixture of:
+- multiple choice
+- checkboxes
+- 1–5 ratings
+- Likert-style questions
+- short open-ended questions
+
+The goal is **usable research data**, not a huge questionnaire.
+
+---
+
+# 12. CONSENT / PARTICIPATION SCREEN
+
+Before any survey starts, show a simple research information screen.
+
+Include:
+
+**About this survey**
+
+“We are conducting research to better understand mental-health support available to secondary-school students in Rwanda.”
+
+“This survey is voluntary.”
+
+“You may skip questions you do not want to answer.”
+
+“Please do not include your name or other identifying information in open-text responses.”
+
+“This survey does not provide medical diagnosis or treatment.”
+
+Then provide an appropriate participation/consent acknowledgement based on the research team's approved process.
+
+IMPORTANT:
+
+Because some respondents may be minors, do not invent legal/ethical consent procedures. Build the interface so that the research team can configure the appropriate participation statement and eligibility rules after confirming them with their school/program/adult supervisors.
+
+Do not collect sensitive information unless it is genuinely necessary for the approved research.
+
+---
+
+# 13. DATABASE DESIGN
+
+Use Supabase/PostgreSQL.
+
+Create a clean schema.
+
+Suggested tables:
+
+## survey_submissions
+
+- id UUID primary key
+- respondent_type
+- age_group
+- region
+- school_setting
+- submitted_at
+- survey_version
+- consent_acknowledged
+
+## student_responses
+
+- submission_id
+- wellbeing_frequency
+- challenges
+- school_impact
+- school_effects
+- support_options
+- support_awareness
+- mental_health_information
+- help_seeking_comfort
+- preferred_first_contact
+- barriers
+- school_support_rating
+- missing_support
+- desired_change
+- preferred_support_types
+- digital_comfort
+- digital_trust_factors
+- desired_digital_support
+
+Use JSON/JSONB for checkbox arrays where appropriate.
+
+Create equivalent structured tables for:
+
+- school_staff_responses
+- professional_responses
+- other_responses
+
+Keep the schema understandable.
+
+Every submission should have:
+- unique ID
+- timestamp
+- respondent type
+- survey version
+
+Do not store unnecessary personally identifying information.
+
+---
+
+# 14. DATA SECURITY
+
+Enable Row Level Security.
+
+Public respondents should only be able to create valid survey submissions.
+
+They should NOT be able to:
+- read all submissions
+- modify other submissions
+- delete submissions
+- access the admin dashboard
+
+Administrative actions must be protected.
+
+Do not expose the database secret key in frontend code.
+
+---
+
+# 15. ADMIN DASHBOARD
+
+Create a separate `/admin` area.
+
+The dashboard should feel like a real research analytics dashboard.
+
+Do not make it excessively complicated.
+
+Top summary cards:
+
+**Total Responses**
+
+**Students**
+
+**School Staff**
+
+**Professionals**
+
+**Other**
+
+Also show:
+
+**Responses Today**
+
+**Latest Submission**
+
+**Survey Completion Rate** if the application can calculate it reliably.
+
+Charts:
+
+1. Respondents by type — donut/pie chart
+
+2. Student respondents by region — bar chart
+
+3. Student school setting — donut chart
+
+4. Main challenges reported by students — horizontal bar chart
+
+5. School support rating — bar chart
+
+6. Help-seeking comfort — bar chart
+
+7. Main barriers to seeking support — horizontal bar chart
+
+8. Preferred forms of support — horizontal bar chart
+
+9. Interest in digital support — bar/donut chart
+
+10. Most common digital trust factors — horizontal bar chart
+
+Do not put every possible chart on the screen.
+
+Use a clean layout with sections.
+
+For open-ended answers, create a separate:
+
+**Qualitative Responses**
+
+area.
+
+Show:
+- response ID
+- respondent type
+- date
+- question
+- answer
+
+Do not expose unnecessary personal information.
+
+---
+
+# 16. DATA DOWNLOAD
+
+Create a prominent button:
+
+**Download Data**
+
+Clicking it should download a CSV containing the actual submitted responses.
+
+The CSV should be analysis-friendly.
+
+Use clear column names such as:
+
+submission_id
+respondent_type
+age_group
+region
+school_setting
+wellbeing_frequency
+challenges
+school_impact
+school_effects
+support_awareness
+help_seeking_comfort
+preferred_first_contact
+barriers
+school_support_rating
+missing_support
+desired_change
+preferred_support_types
+digital_comfort
+digital_trust_factors
+desired_digital_support
+submitted_at
+
+For multiple selections, store values in a consistent format.
+
+Example:
+
+Academic pressure | Family responsibilities | Examination stress
+
+Do not export passwords or secret credentials.
+
+---
+
+# 17. DELETE DATA
+
+Admin dashboard must have a controlled data-management section.
+
+Allow authorized admin users to delete an individual submission.
+
+Use:
+
+**Delete response**
+
+with a confirmation modal:
+
+“Are you sure you want to permanently delete this response? This action cannot be undone.”
+
+Also show the submission ID before deletion.
+
+Do not add a dangerous “delete everything” button in the first version unless it is protected by an additional confirmation mechanism.
+
+---
+
+# 18. ADMIN LOGIN
+
+Create a secure admin login page.
+
+Do NOT hardcode the admin password in frontend JavaScript.
+
+Use secure environment variables/server-side authentication.
+
+The UI can have:
+
+Email
+Password
+Sign in
+
+After login, redirect to `/admin`.
+
+Admin sessions should persist safely.
+
+Add logout.
+
+Do not display credentials anywhere in the dashboard.
+
+---
+
+# 19. ADMIN DASHBOARD UX
+
+Desktop-first but responsive.
+
+Sidebar:
+
+GWIZA
+
+Research Dashboard
+
+- Overview
+- Responses
+- Qualitative
+- Download Data
+- Settings
+- Logout
+
+Main content:
+
+Good spacing.
+
+Clear cards.
+
+Simple charts.
+
+No unnecessary animations.
+
+The dashboard should feel like something a research team could actually use.
+
+---
+
+# 20. SURVEY UX
+
+This is very important.
+
+Do NOT display 20 questions on one giant page.
+
+Use a multi-step questionnaire.
+
+Example:
+
+Step 1
+About You
+
+Step 2
+Well-being
+
+Step 3
+Current Support
+
+Step 4
+Help-Seeking
+
+Step 5
+What's Missing?
+
+Step 6
+Future Support
+
+Show:
+
+**Step 3 of 6**
+
+with a progress bar.
+
+Use large readable answer controls.
+
+For mobile:
+- large tap targets
+- no tiny checkboxes
+- no horizontal overflow
+- one question or small group of questions per screen where appropriate
+
+Use smooth but subtle transitions.
+
+Remember the respondents may be students using phones.
+
+---
+
+# 21. THANK-YOU PAGE
+
+After submission:
+
+**Thank you for contributing.**
+
+“Your response has been recorded and will help the Gwiza team better understand mental-health support for students in Rwanda.”
+
+Do not claim:
+
+“Your response will solve mental health.”
+
+Do not offer medical advice.
+
+Give the user the option to return to the homepage.
+
+---
+
+# 22. RESPONSIVENESS
+
+The website must work well on:
+
+- mobile
+- tablet
+- laptop
+- desktop
+
+Prioritize mobile because students may access the survey through phones.
+
+---
+
+# 23. ACCESSIBILITY
+
+Use:
+
+- proper labels
+- keyboard navigation
+- sufficient contrast
+- visible focus states
+- semantic HTML
+- accessible buttons
+- error messages
+- clear required/optional indicators
+
+Do not rely only on color to communicate information.
+
+---
+
+# 24. FORM VALIDATION
+
+Validate inputs.
+
+If someone skips an optional question, allow them to continue.
+
+For required questions, clearly explain why the response is needed.
+
+Never silently erase a response.
+
+If submission fails:
+show a clear error and preserve the user's entered answers.
+
+---
+
+# 25. RESEARCH DATA QUALITY
+
+Add a hidden/internal `survey_version`.
+
+Example:
+
+`gwiza_student_v1`
+
+This allows the research team to distinguish future versions.
+
+Also record:
+- timestamp
+- respondent type
+- submission ID
+
+Do not collect IP addresses unless there is a clearly approved research reason.
+
+Do not collect names by default.
+
+Do not collect exact school names by default.
+
+---
+
+# 26. EMPTY STATES
+
+The admin dashboard must have good empty states.
+
+Example:
+
+“No responses yet.”
+
+“Once participants complete the survey, your research data will appear here.”
+
+Do not show fake/demo statistics in production.
+
+For development, you may include clearly labelled seed/demo data, but make it easy to remove and NEVER mix demo data with real research data.
+
+---
+
+# 27. ERROR STATES
+
+Create polished states for:
+
+- failed database connection
+- failed submission
+- unauthorized admin access
+- empty dashboard
+- failed CSV generation
+- deleted response
+- session expiration
+
+Keep error messages human and understandable.
+
+---
+
+# 28. LANDING PAGE VISUAL DETAILS
+
+Create a subtle visual identity around the word:
+
+**GWIZA**
+
+Do not create a giant generic gradient hero.
+
+Possible visual concept:
+
+A simple circular/connected-line motif representing:
+**student → support → connection**
+
+Use it subtly.
+
+The website should have a sense of identity without becoming a branding exercise.
+
+---
+
+# 29. DO NOT OVERBUILD
+
+This is being developed on a free Replit plan.
+
+Prioritize:
+
+1. Survey works
+2. Supabase database works
+3. Responses save correctly
+4. Admin authentication works
+5. Dashboard statistics work
+6. CSV download works
+7. Delete response works
+8. Responsive UI works
+
+Do NOT spend resources on:
+
+- AI chatbot
+- real-time messaging
+- payment systems
+- complicated user accounts for students
+- notifications
+- recommendation engines
+- machine learning
+- unnecessary animations
+- complicated CMS
+- social login
+- elaborate backend infrastructure
+
+Those are outside the first research-data-collection version.
+
+---
+
+# 30. IMPORTANT RESEARCH PRINCIPLE
+
+The website is NOT supposed to prove our hypothesis.
+
+It is supposed to help us discover whether our assumptions are correct.
+
+For example, do not assume:
+
+“Students don't have access to mental-health support.”
+
+Instead ask:
+
+“What support is available?”
+
+“Do students know about it?”
+
+“How accessible is it?”
+
+“What prevents students from using it?”
+
+“What do students think is missing?”
+
+The data should determine our eventual solution.
+
+---
+
+# 31. FINAL DELIVERABLE
+
+Generate the complete working project.
+
+Before finishing:
+
+- test all routes
+- test student survey
+- test school-staff survey
+- test professional survey
+- test other survey
+- test Supabase submission
+- test admin login
+- test dashboard
+- test charts
+- test CSV download
+- test delete functionality
+- test responsive layout
+- test empty states
+- test validation
+- test error handling
+
+Provide a clean README containing:
+
+1. Project overview
+2. Tech stack
+3. Supabase setup
+4. Environment variables
+5. Database schema
+6. How to run locally
+7. How to build
+8. How to deploy
+9. How to change survey questions
+10. How to change admin configuration
+11. Security notes
+
+Do not put any real secret credentials into the README.
+
+The final result should be a **small but genuinely polished research platform**, not a huge application.
+
+The quality should come from:
+**good research design + good UX + clean engineering + thoughtful data structure.**
+
+Build it like a professional developer would build a first research prototype that can later grow into the actual Gwiza solution.
