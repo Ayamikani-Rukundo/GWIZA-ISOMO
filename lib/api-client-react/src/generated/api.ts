@@ -146,7 +146,7 @@ export const getCreateSurveySubmissionUrl = () => {
 }
 
 /**
- * @summary Submit an anonymous research survey
+ * @summary Submit a research survey with optional school affiliation
  */
 export const createSurveySubmission = async (surveySubmissionInput: SurveySubmissionInput, options?: Parameters<typeof customFetch>[1]): Promise<SubmissionReceipt> => {
 
@@ -212,7 +212,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateSurveySubmissionMutationVariables = {data: BodyType<SurveySubmissionInput>}
 
     /**
- * @summary Submit an anonymous research survey
+ * @summary Submit a research survey with optional school affiliation
  */
 export const useCreateSurveySubmission = <TError = ErrorType<ErrorResponse>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createSurveySubmission>>, TError,CreateSurveySubmissionMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}

@@ -36,6 +36,7 @@ type StoredSubmission = {
   age_group: string | null;
   region: string | null;
   school_setting: string | null;
+  school_name: string | null;
   submitted_at: string;
   survey_version: string;
   responses: Record<string, unknown>;
@@ -43,7 +44,7 @@ type StoredSubmission = {
 
 const router: IRouter = Router();
 const responseColumns =
-  "id,respondent_type,age_group,region,school_setting,submitted_at,survey_version,responses";
+  "id,respondent_type,age_group,region,school_setting,school_name,submitted_at,survey_version,responses";
 
 type ResponseFieldKind = "single" | "multiple" | "text";
 
@@ -82,20 +83,28 @@ function validResponsePayload(
   responses: Record<string, unknown>,
 ): boolean {
   const allowedFields = responseFields[respondentType];
+  const schoolName = responses.schoolName;
+  if (
+    typeof schoolName !== "string" ||
+    !schoolName.trim() ||
+    schoolName.length > 160
+  ) return false;
+
   const forbiddenKeys = new Set([
     "name", "fullname", "phone", "phonenumber", "email", "address",
-    "homeaddress", "schoolname", "exactschool",
+    "homeaddress", "exactschool",
   ]);
   const entries = Object.entries(responses);
   if (entries.length > 60) return false;
 
   for (const [key, value] of entries) {
     const normalizedKey = key.replace(/[^a-z0-9]/gi, "").toLowerCase();
-    const kind = allowedFields[key];
+    const kind = key === "schoolName" ? "text" : allowedFields[key];
     if (!kind || forbiddenKeys.has(normalizedKey)) return false;
 
     if (kind === "text") {
-      if (typeof value !== "string" || value.length > 4_000) return false;
+      const maxLength = key === "schoolName" ? 160 : 4_000;
+      if (typeof value !== "string" || value.length > maxLength) return false;
     } else if (kind === "multiple") {
       if (
         !Array.isArray(value) || value.length > 30 ||
@@ -171,7 +180,7 @@ const workbookSheets: Record<RespondentType, { name: string; columns: string[] }
 
 const workbookMetadataColumns = [
   "submission_id", "respondent_type", "age_group", "region", "school_setting",
-  "survey_version", "submitted_at",
+  "school_name", "survey_version", "submitted_at",
 ];
 
 function styleWorkbookHeader(worksheet: ExcelJS.Worksheet): void {
@@ -227,6 +236,12 @@ router.post("/survey-submissions", async (request, response): Promise<void> => {
   }
 
   const { respondentType, responses } = parsed.data;
+  const normalizedResponses = {
+    ...responses,
+    ...(typeof responses.schoolName === "string"
+      ? { schoolName: responses.schoolName.trim() }
+      : {}),
+  };
   const surveyVersion = `gwiza_${respondentType}_${respondentType === "school" || respondentType === "professional" ? "v2" : "v1"}`;
 
   try {
@@ -237,7 +252,7 @@ router.post("/survey-submissions", async (request, response): Promise<void> => {
       method: "POST",
       body: JSON.stringify({
         p_respondent_type: respondentType,
-        p_responses: responses,
+        p_responses: normalizedResponses,
         p_survey_version: surveyVersion,
         p_consent_acknowledged: true,
       }),
@@ -344,7 +359,11 @@ router.get(
       .slice(0, 80);
     if (cleanedSearch) {
       const term = `*${cleanedSearch}*`;
-      const clauses = [`region.ilike.${term}`, `age_group.ilike.${term}`];
+      const clauses = [
+        `region.ilike.${term}`,
+        `age_group.ilike.${term}`,
+        `school_name.ilike.${term}`,
+      ];
       if (
         /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(cleanedSearch)
       ) {
@@ -365,6 +384,7 @@ router.get(
           ageGroup: item.age_group,
           region: item.region,
           schoolSetting: item.school_setting,
+          schoolName: item.school_name,
           submittedAt: item.submitted_at,
           surveyVersion: item.survey_version,
           responses: item.responses ?? {},
@@ -511,6 +531,7 @@ router.get(
             age_group: item.age_group,
             region: item.region,
             school_setting: item.school_setting,
+            school_name: item.school_name,
             survey_version: item.survey_version,
             submitted_at: item.submitted_at,
             ...item.responses,

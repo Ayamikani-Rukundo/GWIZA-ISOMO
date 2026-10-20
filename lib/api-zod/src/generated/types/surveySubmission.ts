@@ -17,6 +17,8 @@ export interface SurveySubmission {
   region: string | null;
   /** @nullable */
   schoolSetting: string | null;
+  /** @nullable */
+  schoolName: string | null;
   submittedAt: Date;
   surveyVersion: string;
   responses: SurveySubmissionResponses;

@@ -15,6 +15,7 @@ export interface AdminOverview {
   respondentTypes: CountItem[];
   regions: CountItem[];
   schoolSettings: CountItem[];
+  schools: CountItem[];
   challenges: CountItem[];
   supportRatings: CountItem[];
   helpSeekingComfort: CountItem[];

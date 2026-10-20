@@ -11,7 +11,7 @@ tags:
   - name: health
     description: Health operations
   - name: surveys
-    description: Anonymous research survey submissions
+    description: Research survey submissions with optional school affiliation
   - name: admin
     description: Protected research administration
 paths:
@@ -31,7 +31,7 @@ paths:
     post:
       operationId: createSurveySubmission
       tags: [surveys]
-      summary: Submit an anonymous research survey
+      summary: Submit a research survey with optional school affiliation
       requestBody:
         required: true
         content:
@@ -340,6 +340,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CountItem"
+        schools:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
         challenges:
           type: array
           items:
@@ -375,6 +379,7 @@ components:
         - respondentTypes
         - regions
         - schoolSettings
+        - schools
         - challenges
         - supportRatings
         - helpSeekingComfort
@@ -396,6 +401,8 @@ components:
           type: [string, "null"]
         schoolSetting:
           type: [string, "null"]
+        schoolName:
+          type: [string, "null"]
         submittedAt:
           type: string
           format: date-time
@@ -404,7 +411,7 @@ components:
         responses:
           type: object
           additionalProperties: true
-      required: [id, respondentType, ageGroup, region, schoolSetting, submittedAt, surveyVersion, responses]
+      required: [id, respondentType, ageGroup, region, schoolSetting, schoolName, submittedAt, surveyVersion, responses]
     SubmissionPage:
       type: object
       properties:

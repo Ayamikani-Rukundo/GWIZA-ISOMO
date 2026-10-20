@@ -1,10 +1,10 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { Route, Switch, Link, useLocation } from 'wouter';
-import { ArrowDown, ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, CircleHelp, Download, FileText, LockKeyhole, LogOut, Menu, Settings as SettingsIcon, ShieldCheck, Trash2, Users, X } from 'lucide-react';
+import { ArrowDown, ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, CircleHelp, Download, FileText, LockKeyhole, LogOut, Menu, Settings as SettingsIcon, ShieldCheck, Sparkles, Trash2, Users, X } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { getGetAdminOverviewQueryKey, getGetAdminSessionQueryKey, getHealthCheckQueryKey, getListAdminSubmissionsQueryKey, getListQualitativeResponsesQueryKey, useAdminLogin, useAdminLogout, useCreateSurveySubmission, useDeleteAdminSubmission, useGetAdminOverview, useGetAdminSession, useHealthCheck, useListAdminSubmissions, useListQualitativeResponses } from '@workspace/api-client-react';
-import type { AdminOverview, RespondentType } from '@workspace/api-client-react';
+import type { AdminOverview, RespondentType, SurveySubmission } from '@workspace/api-client-react';
 import NotFound from '@/pages/not-found';
 import './index.css';
 
@@ -31,7 +31,7 @@ function RespondentCards() {
 }
 function Home() {
   const health = useHealthCheck({ query: { queryKey: getHealthCheckQueryKey() } });
-  return <><Header/><main><section className="hero-wrap"><div className="hero-copy"><p className="eyebrow"><span className="eyebrow-dot"/>A listening project across Rwanda</p><h1 className="serif">Understanding student wellbeing<span className="title-line">starts by listening.</span></h1><p className="hero-lede">We’re learning what secondary-school students experience, what support is already there, and what could make a real difference.</p><div className="hero-actions"><Link className="button button-primary" href="/survey">Take the research survey <ArrowRight size={17}/></Link><a className="text-link" href="#about">Learn about the project <ArrowDown size={16}/></a></div><div className="privacy-note"><LockKeyhole size={16}/><span>Anonymous by design. No names, phone numbers or exact school details.</span></div></div><div className="hero-art" aria-label="Illustration of connected people and support"><div className="art-orbit orbit-one"/><div className="art-orbit orbit-two"/><div className="art-center"><div className="art-mark"><span/><span/><span/></div><p>listen<br/>understand<br/>learn</p></div><div className="art-node node-one"><span className="node-person">S</span><small>student<br/>experience</small></div><div className="art-node node-two"><span className="node-person node-blue">↗</span><small>available<br/>support</small></div><div className="art-node node-three"><span className="node-person node-sage">+</span><small>what could<br/>change</small></div><div className="art-caption">A better picture begins<br/>with many perspectives.</div></div></section><section className="research-strip" id="about"><div><span className="section-index">01 / THE QUESTION</span><h2 className="serif">What support is here?<br/><em>What’s still missing?</em></h2></div><div className="strip-copy"><p>Gwiza Startup is conducting action research on the mental-health support gap among secondary-school students in Rwanda.</p><p>We’re not here to assume what the answer should be. We want to understand the everyday experience first — from students and the people around them.</p><a className="text-link" href="/survey">Add your perspective <ArrowRight size={16}/></a></div></section><section className="participate-section"><div className="section-heading"><span className="section-index">02 / TAKE PART</span><h2 className="serif">A useful picture needs<br/>more than one view.</h2><p>Choose the perspective that fits you. Most questions are optional, and you can skip anything you would rather not answer.</p></div><RespondentCards/></section><section className="method-section"><div className="method-symbol" aria-hidden="true"><span/><span/><span/></div><div><span className="section-index">HOW WE’RE APPROACHING THIS</span><h2 className="serif">Problem first.<br/>Possibilities later.</h2></div><p>We ask about experiences, current support and what may be missing before exploring possible solutions. Technology is one question among many — not an assumption.</p></section><section className="closing-note"><div><span className="section-index">A NOTE ON PRIVACY</span><h2 className="serif">Your voice, without<br/>your identity.</h2></div><p>We do not ask for your name, exact school or contact details. In open responses, please avoid sharing information that could identify you or someone else.</p></section></main><Footer health={health.isSuccess ? 'online' : health.isError ? 'offline' : 'checking'}/></>;
+  return <><Header/><main><section className="hero-wrap"><div className="hero-copy"><p className="eyebrow"><span className="eyebrow-dot"/>A listening project across Rwanda</p><h1 className="serif">Understanding student wellbeing<span className="title-line">starts by listening.</span></h1><p className="hero-lede">We’re learning what secondary-school students experience, what support is already there, and what could make a real difference.</p><div className="hero-actions"><Link className="button button-primary" href="/survey">Take the research survey <ArrowRight size={17}/></Link><a className="text-link" href="#about">Learn about the project <ArrowDown size={16}/></a></div><div className="privacy-note"><LockKeyhole size={16}/><span>No names or contact details. School name is required.</span></div></div><div className="hero-art" aria-label="Illustration of connected people and support"><div className="art-orbit orbit-one"/><div className="art-orbit orbit-two"/><div className="art-center"><div className="art-mark"><span/><span/><span/></div><p>listen<br/>understand<br/>learn</p></div><div className="art-node node-one"><span className="node-person">S</span><small>student<br/>experience</small></div><div className="art-node node-two"><span className="node-person node-blue">↗</span><small>available<br/>support</small></div><div className="art-node node-three"><span className="node-person node-sage">+</span><small>what could<br/>change</small></div><div className="art-caption">A better picture begins<br/>with many perspectives.</div></div></section><section className="research-strip" id="about"><div><span className="section-index">01 / THE QUESTION</span><h2 className="serif">What support is here?<br/><em>What’s still missing?</em></h2></div><div className="strip-copy"><p>Gwiza Startup is conducting action research on the mental-health support gap among secondary-school students in Rwanda.</p><p>We’re not here to assume what the answer should be. We want to understand the everyday experience first — from students and the people around them.</p><a className="text-link" href="/survey">Add your perspective <ArrowRight size={16}/></a></div></section><section className="participate-section"><div className="section-heading"><span className="section-index">02 / TAKE PART</span><h2 className="serif">A useful picture needs<br/>more than one view.</h2><p>Choose the perspective that fits you. You may stop at any time before submitting; only questions marked optional may be left unanswered.</p></div><RespondentCards/></section><section className="method-section"><div className="method-symbol" aria-hidden="true"><span/><span/><span/></div><div><span className="section-index">HOW WE’RE APPROACHING THIS</span><h2 className="serif">Problem first.<br/>Possibilities later.</h2></div><p>We ask about experiences, current support and what may be missing before exploring possible solutions. Technology is one question among many — not an assumption.</p></section><section className="closing-note"><div><span className="section-index">A NOTE ON PRIVACY</span><h2 className="serif">Your voice, without<br/>your identity.</h2></div><p>School name is required and visible to authorized research administrators for school-level response counts. We do not ask for your name or contact details; please avoid identifying people in open responses.</p></section></main><Footer health={health.isSuccess ? 'online' : health.isError ? 'offline' : 'checking'}/></>;
 }
 function Footer({ health }: { health?: 'online' | 'offline' | 'checking' }) {
   return <footer className="footer"><Brand/><div><span>GWIZA STARTUP · ACTION RESEARCH</span><span>This survey is voluntary and for research purposes only.</span><ApprovalDocumentAccess/></div>{health && <span className="health-status"><i className={health === 'online' ? '' : health === 'offline' ? 'health-offline' : 'health-checking'}/>{health === 'online' ? 'Research service available' : health === 'offline' ? 'Research service connection unavailable' : 'Checking research service'}</span>}</footer>;
@@ -40,7 +40,7 @@ function ChooseSurvey() {
   return <><Header/><main className="subpage"><div className="page-kicker"><Link href="/" className="back-link"><ArrowLeft size={16}/> Back to project</Link><span>PARTICIPANT PATHWAYS</span></div><div className="choice-intro"><span className="section-index">YOUR PERSPECTIVE MATTERS</span><h1 className="serif">Who are you joining<br/>the conversation as?</h1><p>Choose the closest fit. Each questionnaire is short and designed for your perspective.</p></div><RespondentCards/><div className="subpage-notice"><Notice/></div></main><Footer/></>;
 }
 
-type Q = { key: string; label: string; kind?: 'multi' | 'text'; options?: string[]; hint?: string };
+type Q = { key: string; label: string; kind?: 'multi' | 'text'; options?: string[]; hint?: string; optional?: boolean };
 type Step = { title: string; note?: string; questions: Q[] };
 const studentSteps: Step[] = [
   { title: 'About you', note: 'A little context helps us understand the responses. Please answer broadly.', questions: [
@@ -67,13 +67,13 @@ const studentSteps: Step[] = [
   { title: 'What is missing?', note: 'Your perspective can help identify where support could work better.', questions: [
     { key: 'schoolSupportRating', label: 'How well do you think your school currently supports students’ mental and emotional wellbeing?', options: ['Very poorly', 'Poorly', 'Fairly', 'Well', 'Very well', 'Not sure'] },
     { key: 'missingSupport', label: 'What do you think is missing from the support currently available to students?', kind: 'text', hint: 'Please do not include names or identifying details.' },
-    { key: 'desiredChange', label: 'If you could change one thing about mental-health support for students at your school, what would you change?', kind: 'text', hint: 'Share only what you feel comfortable sharing.' },
+    { key: 'desiredChange', label: 'What one change would most improve mental-health support for students at your school?', kind: 'text', hint: 'Please do not include names or identifying details.' },
   ]},
   { title: 'Possibilities, in your words', note: 'Only now are we asking about possible future support. Technology may or may not be useful.', questions: [
     { key: 'preferredSupportTypes', label: 'Which forms of support would students be most likely to use?', kind: 'multi', options: ['One-on-one conversation with a counsellor', 'Small peer-support groups', 'Trusted teacher support', 'Anonymous online information', 'Online conversation with a trained professional', 'Mental-health education sessions', 'A private digital platform', 'Helpline / chat support', 'Workshops for students', 'Support for parents', 'Other', 'Not sure'] },
     { key: 'digitalComfort', label: 'Would you be comfortable using a digital platform to learn about mental health or find support?', options: ['Definitely not', 'Probably not', 'Not sure', 'Probably yes', 'Definitely yes'] },
     { key: 'digitalTrustFactors', label: 'What would make a digital support platform feel trustworthy to you?', kind: 'multi', options: ['Privacy', 'Anonymity', 'Qualified professionals', 'School involvement', 'Ability to speak to a real person', 'Clear information', 'Easy to use', 'Available in Kinyarwanda', 'Available in English', 'Works with limited internet', 'Other'] },
-    { key: 'desiredDigitalSupport', label: 'What would you want such a platform to help you with?', kind: 'text', hint: 'This is optional. Please avoid names or identifying details.' },
+    { key: 'desiredDigitalSupport', label: 'If a digital platform were available, what information or support would you want it to provide?', kind: 'text', optional: true, hint: 'Please avoid names or identifying details.' },
   ]},
 ];
 const otherSteps: Record<'school' | 'professional' | 'other', Step[]> = {
@@ -83,7 +83,7 @@ const otherSteps: Record<'school' | 'professional' | 'other', Step[]> = {
       { key: 'yearsExperience', label: 'How many years have you worked in education?', options: ['Less than 1 year', '1–5 years', '6–10 years', '11–20 years', 'More than 20 years', 'Prefer not to say'] },
       { key: 'studentApproachFrequency', label: 'How frequently do students approach staff with personal or emotional difficulties?', options: ['Never', 'Rarely', 'Sometimes', 'Often', 'Very often', 'Not sure'] },
       { key: 'staffAwareness', label: 'How aware are staff at your school of students’ mental-health and wellbeing needs?', options: ['Not at all aware', 'Slightly aware', 'Moderately aware', 'Very aware', 'Extremely aware', 'Not sure'] },
-      { key: 'commonChallenges', label: 'What challenges do you most commonly observe?', kind: 'multi', options: ['Academic pressure', 'Family responsibilities', 'Peer relationships', 'Bullying or discrimination', 'Financial difficulties', 'Loneliness', 'Pressure about the future', 'Other', 'Not sure'] },
+      { key: 'commonChallenges', label: 'Which challenges do you most commonly observe affecting students’ wellbeing?', kind: 'multi', options: ['Academic pressure', 'Family responsibilities', 'Peer relationships', 'Bullying or discrimination', 'Financial difficulties', 'Loneliness', 'Pressure about the future', 'Other', 'Not sure'] },
     ]},
     { title: 'Support in schools', questions: [
       { key: 'currentSupport', label: 'What mental-health or emotional support is currently available at your school?', kind: 'multi', options: ['School counsellor', 'Teacher support', 'Referral to health services', 'Student groups', 'Education sessions', 'Community or faith-based support', 'No dedicated support', 'Not sure', 'Other'] },
@@ -99,14 +99,14 @@ const otherSteps: Record<'school' | 'professional' | 'other', Step[]> = {
       { key: 'additionalSupportNeeds', label: 'What additional resources would help your school support students?', kind: 'multi', options: ['More trained counsellors', 'Staff training', 'Clear referral pathways', 'Private space for conversations', 'More time for student support', 'Funding or materials', 'Community partnerships', 'Other', 'Not sure'] },
       { key: 'platformConcerns', label: 'What concerns would you have about a digital mental-health platform for students?', kind: 'multi', options: ['Student privacy', 'Data security', 'Stigma', 'Unequal access to devices or internet', 'Misinformation', 'Lack of human support', 'School workload', 'Student trust', 'Cost', 'Other', 'Not sure'] },
       { key: 'technologyAccess', label: 'Could technology improve access or coordination for student support?', options: ['Yes', 'No', 'Not sure'] },
-      { key: 'technologyProblem', label: 'If technology could help, what problem should it solve?', kind: 'text', hint: 'Optional. Include concerns as well as possibilities.' },
-      { key: 'technologyReplacement', label: 'What should technology never replace in student support?', kind: 'text', hint: 'Optional.' },
+      { key: 'technologyProblem', label: 'If technology could support students, which specific access or coordination problem should it address?', kind: 'text', optional: true, hint: 'Include concerns as well as possibilities.' },
+      { key: 'technologyReplacement', label: 'Which parts of student support should always involve a trusted person rather than technology alone?', kind: 'text', optional: true },
     ]},
   ],
   professional: [
     { title: 'Your perspective', questions: [
       { key: 'professionalRole', label: 'Which best describes your professional role?', options: ['Mental-health professional', 'Counsellor or psychologist', 'Health professional', 'Social worker', 'Education professional', 'Researcher or academic', 'Youth-service or NGO worker', 'Other'] },
-      { key: 'experienceAreas', label: 'Which areas of adolescent support have you worked with?', kind: 'multi', options: ['School-based support', 'Mental-health services', 'Early identification', 'Referral systems', 'Community services', 'Family support', 'Health education', 'Other'] },
+      { key: 'experienceAreas', label: 'Which areas of support for adolescents have you worked in?', kind: 'multi', options: ['School-based support', 'Mental-health services', 'Early identification', 'Referral systems', 'Community services', 'Family support', 'Health education', 'Other'] },
       { key: 'referralEffectiveness', label: 'How effective are current pathways for referring students to appropriate support?', options: ['Very ineffective', 'Ineffective', 'Neither effective nor ineffective', 'Effective', 'Very effective', 'Not sure'] },
       { key: 'serviceBarriers', label: 'What barriers most affect adolescents’ access to support?', kind: 'multi', options: ['Limited service availability', 'Cost', 'Distance', 'Long waiting times', 'Stigma', 'Low awareness', 'Shortage of trained professionals', 'Privacy concerns', 'Weak school referral pathways', 'Family or community attitudes', 'Other', 'Not sure'] },
     ]},
@@ -126,41 +126,85 @@ const otherSteps: Record<'school' | 'professional' | 'other', Step[]> = {
     { title: 'What could help?', questions: [
       { key: 'perceivedGaps', label: 'What do you think may be missing from the support available?', kind: 'text', hint: 'Please avoid names or details that identify a young person.' },
       { key: 'barriers', label: 'What might make it harder for young people to seek or receive support?', kind: 'multi', options: ['Stigma', 'Not knowing where to go', 'Cost', 'Privacy concerns', 'Limited services', 'Family or community attitudes', 'Trust', 'Other', 'Not sure'] },
-      { key: 'improvements', label: 'What could improve support for students?', kind: 'text', hint: 'Optional. Please do not include identifying details.' },
-      { key: 'recommendations', label: 'Is there anything else you would like the research team to understand?', kind: 'text', hint: 'Optional.' },
+      { key: 'improvements', label: 'What practical change would most improve the support available to students in your community?', kind: 'text', optional: true, hint: 'Please do not include identifying details.' },
+      { key: 'recommendations', label: 'Is there anything else you would like the research team to understand?', kind: 'text', optional: true },
     ]},
   ],
 };
-function Consent({ onContinue, busy }: { onContinue: () => void; busy: boolean }) {
+function Consent({ onContinue, busy, schoolName, onSchoolNameChange }: { onContinue: (schoolName: string) => void; busy: boolean; schoolName: string; onSchoolNameChange: (value: string) => void }) {
   const [ack, setAck] = useState(false);
-  return <div className="consent-layout appear"><div className="consent-icon"><BookOpen size={25}/></div><span className="section-index">BEFORE YOU BEGIN</span><h1 className="serif">A few things to know.</h1><p className="consent-intro">We are conducting research to better understand mental-health support available to secondary-school students in Rwanda.</p><div className="consent-points"><p><Check size={17}/> Taking part is voluntary.</p><p><Check size={17}/> You may skip any question you do not want to answer.</p><p><Check size={17}/> Please do not include your name or identifying information in open-text responses.</p><p><Check size={17}/> This survey does not provide medical diagnosis or treatment.</p></div><div className="minor-note"><strong>For student participants</strong><p>Participation should follow the research team’s approved school, programme or adult-supervisor process. Please proceed only in line with the information and process shared with you by the research team.</p></div><label className="ack-label"><input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} data-testid="input-consent"/><span>I have read this information and am choosing to take part in line with the approved participation process.</span></label><button className="button button-primary button-wide" onClick={onContinue} disabled={!ack || busy} data-testid="button-begin-survey">Continue to questions <ArrowRight size={17}/></button><p className="optional-note">All questions are optional. You can leave a response blank and continue.</p></div>;
+  const [schoolNameError, setSchoolNameError] = useState('');
+  const continueToQuestions = () => {
+    if (!schoolName.trim()) {
+      setSchoolNameError('School name is required. Please enter the name of your school.');
+      return;
+    }
+    onContinue(schoolName.trim());
+  };
+  return <div className="consent-layout appear"><div className="consent-icon"><BookOpen size={25}/></div><span className="section-index">BEFORE YOU BEGIN</span><h1 className="serif">A few things to know.</h1><p className="consent-intro">We are conducting research to better understand mental-health support available to secondary-school students in Rwanda.</p><div className="consent-points"><p><Check size={17}/> Taking part is voluntary.</p><p><Check size={17}/> You may stop at any time before submitting; only questions marked optional may be left unanswered.</p><p><Check size={17}/> Your school name is required and will be visible to authorized research administrators for school-level response counts.</p><p><Check size={17}/> Please do not include your name or identifying information in open-text responses.</p><p><Check size={17}/> This survey does not provide medical diagnosis or treatment.</p></div><label className="school-name-field">School name <span className="required-mark" aria-label="required">*</span><input type="text" required maxLength={160} autoComplete="organization" value={schoolName} onChange={(event) => { onSchoolNameChange(event.target.value); if (event.target.value.trim()) setSchoolNameError(''); }} placeholder="Type the name of your school" aria-invalid={!!schoolNameError} aria-describedby={schoolNameError ? 'school-name-error' : 'school-name-hint'} data-testid="input-school-name"/><span className="field-hint" id="school-name-hint">Enter the name of the school you attend or work with.</span>{schoolNameError && <span className="question-error" id="school-name-error" role="alert">{schoolNameError}</span>}</label><div className="minor-note"><strong>For student participants</strong><p>Participation should follow the research team’s approved school, programme or adult-supervisor process. Please proceed only in line with the information and process shared with you by the research team.</p></div><label className="ack-label"><input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} data-testid="input-consent"/><span>I have read this information and am choosing to take part in line with the approved participation process.</span></label><button className="button button-primary button-wide" onClick={continueToQuestions} disabled={!ack || busy} data-testid="button-begin-survey">Continue to questions <ArrowRight size={17}/></button><p className="optional-note"><span className="required-mark">*</span> Required. Questions marked optional may be skipped.</p></div>;
 }
 function Survey({ type }: { type: RespondentType }) {
   const [, setLocation] = useLocation();
   const [started, setStarted] = useState(false);
   const [step, setStep] = useState(0);
   const [responses, setResponses] = useState<Record<string, unknown>>({});
+  const [questionErrors, setQuestionErrors] = useState<Record<string, string>>({});
+  const [schoolName, setSchoolName] = useState('');
   const [error, setError] = useState('');
   const create = useCreateSurveySubmission();
   const steps = type === 'student' ? studentSteps : otherSteps[type];
-  const setAnswer = (key: string, value: unknown) => setResponses((prev) => ({ ...prev, [key]: value }));
+  const active = steps[step];
+  const setAnswer = (key: string, value: unknown) => {
+    setResponses((prev) => ({ ...prev, [key]: value }));
+    if (isAnswered(steps.flatMap((item) => item.questions).find((question) => question.key === key), value)) {
+      setQuestionErrors((prev) => {
+        if (!(key in prev)) return prev;
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+    }
+  };
+  const validateActiveStep = () => {
+    const errors = Object.fromEntries(
+      active.questions
+        .filter((question) => !question.optional && !isAnswered(question, responses[question.key]))
+        .map((question) => [question.key, 'This question is required. Please provide an answer.']),
+    );
+    setQuestionErrors((prev) => {
+      const next = { ...prev };
+      for (const question of active.questions) delete next[question.key];
+      return { ...next, ...errors };
+    });
+    return Object.keys(errors).length === 0;
+  };
   const submit = () => {
+    if (!validateActiveStep()) return;
     setError('');
     create.mutate({ data: { respondentType: type, consentAcknowledged: true, responses } }, {
       onSuccess: () => setLocation('/thank-you'),
       onError: () => setError('Your answers are still here. We could not send them just now. Please try again when you have a connection.'),
     });
   };
-  const active = steps[step];
-  return <><Header/><main className="survey-shell"><div className="survey-header"><Link href="/survey" className="back-link"><ArrowLeft size={16}/> Change respondent</Link><span className="survey-type">{identities[type].title}</span></div>{!started ? <Consent onContinue={() => setStarted(true)} busy={create.isPending}/> : <section className="survey-step appear" aria-live="polite"><div className="step-top"><div><span className="section-index">QUESTIONNAIRE · ABOUT {typeName[type].toUpperCase()}</span><h1 className="serif">{active.title}</h1>{active.note && <p className="step-note">{active.note}</p>}</div><span className="step-count">{step + 1}<i> / {steps.length}</i></span></div><div className="progress-track" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={steps.length} aria-label={`Step ${step + 1} of ${steps.length}`}><span style={{ width: `${((step + 1) / steps.length) * 100}%` }}/></div><div className="question-list">{active.questions.map((q, qi) => <Question key={q.key} q={q} number={step === 0 && type === 'student' ? qi + 1 : undefined} value={responses[q.key]} onChange={(v) => setAnswer(q.key, v)}/>)}</div>{error && <div role="alert" className="form-error"><CircleHelp size={17}/>{error}</div>}<div className="survey-actions">{step > 0 ? <button className="button button-soft" onClick={() => setStep(step - 1)} data-testid="button-previous"><ArrowLeft size={17}/> Previous</button> : <span/>}{step < steps.length - 1 ? <button className="button button-primary" onClick={() => { setError(''); setStep(step + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }} data-testid="button-next">Next section <ArrowRight size={17}/></button> : <button className="button button-primary" onClick={submit} disabled={create.isPending} data-testid="button-submit-survey">{create.isPending ? 'Sending response…' : 'Send my response'} {!create.isPending && <ArrowRight size={17}/>}</button>}</div><p className="skip-reminder">You can leave any answer blank. Avoid names, contact details or exact school names.</p></section>}</main><Footer/></>;
+  return <><Header/><main className="survey-shell"><div className="survey-header"><Link href="/survey" className="back-link"><ArrowLeft size={16}/> Change respondent</Link><span className="survey-type">{identities[type].title}</span></div>{!started ? <Consent onContinue={(value) => { setSchoolName(value); setAnswer('schoolName', value); setStarted(true); }} schoolName={schoolName} onSchoolNameChange={setSchoolName} busy={create.isPending}/> : <section className="survey-step appear" aria-live="polite"><div className="step-top"><div><span className="section-index">QUESTIONNAIRE · ABOUT {typeName[type].toUpperCase()}</span><h1 className="serif">{active.title}</h1>{active.note && <p className="step-note">{active.note}</p>}</div><span className="step-count">{step + 1}<i> / {steps.length}</i></span></div><div className="required-note"><span className="required-mark">*</span> Required question <span> · </span> Questions marked optional may be skipped.</div><div className="progress-track" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={steps.length} aria-label={`Step ${step + 1} of ${steps.length}`}><span style={{ width: `${((step + 1) / steps.length) * 100}%` }}/></div><div className="question-list">{active.questions.map((q, qi) => <Question key={q.key} q={q} number={step === 0 && type === 'student' ? qi + 1 : undefined} value={responses[q.key]} error={questionErrors[q.key]} onChange={(v) => setAnswer(q.key, v)}/>)}</div>{error && <div role="alert" className="form-error"><CircleHelp size={17}/>{error}</div>}<div className="survey-actions">{step > 0 ? <button className="button button-soft" onClick={() => setStep(step - 1)} data-testid="button-previous"><ArrowLeft size={17}/> Previous</button> : <span/>}{step < steps.length - 1 ? <button className="button button-primary" onClick={() => { if (!validateActiveStep()) return; setError(''); setStep(step + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }} data-testid="button-next">Next section <ArrowRight size={17}/></button> : <button className="button button-primary" onClick={submit} disabled={create.isPending} data-testid="button-submit-survey">{create.isPending ? 'Sending response…' : 'Send my response'} {!create.isPending && <ArrowRight size={17}/>}</button>}</div><p className="skip-reminder">Avoid names, contact details or identifying people in open-text responses.</p></section>}</main><Footer/></>;
 }
-function Question({ q, value, onChange, number }: { q: Q; value: unknown; onChange: (value: unknown) => void; number?: number }) {
+function isAnswered(question: Q | undefined, value: unknown): boolean {
+  if (!question) return false;
+  if (question.kind === 'text') return typeof value === 'string' && value.trim().length > 0;
+  if (question.kind === 'multi') {
+    const minimum = 1;
+    return Array.isArray(value) && value.filter((item) => typeof item === 'string' && item.trim()).length >= minimum;
+  }
+  return typeof value === 'string' && value.trim().length > 0;
+}
+function Question({ q, value, error, onChange, number }: { q: Q; value: unknown; error?: string; onChange: (value: unknown) => void; number?: number }) {
   const selection = Array.isArray(value) ? value as string[] : [];
   const toggle = (choice: string) => onChange(selection.includes(choice) ? selection.filter((x) => x !== choice) : [...selection, choice]);
-  return <fieldset className="question"><legend>{number && <span className="question-number">{String(number).padStart(2, '0')}</span>}{q.label}<small>Optional</small></legend>{q.kind === 'text' ? <><textarea value={typeof value === 'string' ? value : ''} onChange={(e) => onChange(e.target.value)} rows={3} placeholder="Write a few words…" aria-label={q.label} data-testid={`textarea-${q.key}`}/>{q.hint && <span className="field-hint">{q.hint}</span>}</> : <div className="choice-list">{q.options?.map((choice) => { const checked = q.kind === 'multi' ? selection.includes(choice) : value === choice; return <button key={choice} type="button" aria-pressed={checked} className={`choice-button ${checked ? 'selected' : ''}`} onClick={() => q.kind === 'multi' ? toggle(choice) : onChange(checked ? undefined : choice)} data-testid={`choice-${q.key}-${choice.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}><span className={`choice-indicator ${q.kind === 'multi' ? 'checkbox-indicator' : ''}`}>{checked && <Check size={14}/>}</span>{choice}</button>; })}</div>}</fieldset>;
+  const errorId = `question-error-${q.key}`;
+  return <fieldset className={`question ${error ? 'question-invalid' : ''}`} aria-invalid={!!error} aria-describedby={error ? errorId : undefined}><legend>{number && <span className="question-number">{String(number).padStart(2, '0')}</span>}{q.label}{q.optional ? <small>Optional</small> : <span className="required-mark" aria-label="required">*</span>}</legend>{q.kind === 'text' ? <><textarea value={typeof value === 'string' ? value : ''} onChange={(e) => onChange(e.target.value)} rows={3} placeholder="Write a few words…" aria-label={q.label} aria-invalid={!!error} aria-describedby={[q.hint ? `question-hint-${q.key}` : '', error ? errorId : ''].filter(Boolean).join(' ') || undefined} data-testid={`textarea-${q.key}`}/>{q.hint && <span className="field-hint" id={`question-hint-${q.key}`}>{q.hint}</span>}</> : <div className="choice-list">{q.options?.map((choice) => { const checked = q.kind === 'multi' ? selection.includes(choice) : value === choice; return <button key={choice} type="button" aria-pressed={checked} className={`choice-button ${checked ? 'selected' : ''}`} onClick={() => q.kind === 'multi' ? toggle(choice) : onChange(checked ? undefined : choice)} data-testid={`choice-${q.key}-${choice.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}><span className={`choice-indicator ${q.kind === 'multi' ? 'checkbox-indicator' : ''}`}>{checked && <Check size={14}/>}</span>{choice}</button>; })}</div>}{error && <p className="question-error" id={errorId} role="alert">{error}</p>}</fieldset>;
 }
 function Thanks() {
-  return <><Header/><main className="thankyou"><div className="thankyou-mark"><Check size={32}/></div><span className="section-index">RESPONSE RECEIVED</span><h1 className="serif">Thank you for<br/>contributing.</h1><p>Your response will help the Gwiza team better understand mental-health support for students in Rwanda.</p><div className="thankyou-note"><ShieldCheck size={19}/><span>Your responses are used for research. No personal identity details were requested.</span></div><Link href="/" className="button button-primary">Return to the project <ArrowRight size={17}/></Link></main><Footer/></>;
+  return <><Header/><main className="thankyou"><div className="thankyou-mark"><Check size={32}/></div><span className="section-index">RESPONSE RECEIVED</span><h1 className="serif">Thank you for<br/>contributing.</h1><p>Your response will help the Gwiza team better understand mental-health support for students in Rwanda.</p><div className="thankyou-note"><ShieldCheck size={19}/><span>No personal names or contact details are collected. Your school name is visible only to authorized research administrators.</span></div><Link href="/" className="button button-primary">Return to the project <ArrowRight size={17}/></Link></main><Footer/></>;
 }
 function Login() {
   const [, setLocation] = useLocation();
@@ -171,15 +215,19 @@ function Login() {
   const [error, setError] = useState('');
   return <div className="admin-login-page"><Header/><main className="login-wrap"><div className="login-aside"><span className="section-index">GWIZA RESEARCH / TEAM ACCESS</span><h1 className="serif">A clearer view<br/>of the work.</h1><p>Private workspace for the research team. Response data is only visible to authorized administrators.</p><div className="login-privacy"><LockKeyhole/><span>Protected access<br/>No respondent identity fields collected</span></div></div><form className="login-card" onSubmit={(e) => { e.preventDefault(); setError(''); login.mutate({ data: { email, password } }, { onSuccess: (session) => { client.setQueryData(getGetAdminSessionQueryKey(), session); if (session.authenticated) setLocation('/admin'); else setError('This account could not be authenticated. Please check your details.'); }, onError: () => setError('We could not sign you in. Check your details and try again.') }); }}><div className="login-icon"><LockKeyhole size={22}/></div><span className="section-index">ADMINISTRATOR ACCESS</span><h2 className="serif">Sign in</h2><label>Email address<input type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} data-testid="input-admin-email"/></label><label>Password<input type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} data-testid="input-admin-password"/></label>{error && <p className="form-error" role="alert">{error}</p>}<button className="button button-primary button-wide" type="submit" disabled={login.isPending} data-testid="button-admin-login">{login.isPending ? 'Signing in…' : 'Sign in securely'} <ArrowRight size={17}/></button><p className="login-footnote">Access is limited to approved research administrators.</p></form></main><Footer/></div>;
 }
-type Tab = 'overview' | 'responses' | 'qualitative' | 'settings';
+type Tab = 'overview' | 'responses' | 'qualitative' | 'ai' | 'settings';
 function Admin() {
   const [, setLocation] = useLocation();
   const client = useQueryClient();
   const session = useGetAdminSession({ query: { queryKey: getGetAdminSessionQueryKey(), retry: false } });
   const [tab, setTab] = useState<Tab>('overview');
   const [filter, setFilter] = useState('all');
+  const [qualitativeTypeFilter, setQualitativeTypeFilter] = useState<'all' | RespondentType>('all');
+  const [qualitativeQuestionFilter, setQualitativeQuestionFilter] = useState('all');
+  const [qualitativeSearch, setQualitativeSearch] = useState('');
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [selectedResponse, setSelectedResponse] = useState<SurveySubmission | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [feedback, setFeedback] = useState('');
   const logout = useAdminLogout();
@@ -188,6 +236,20 @@ function Admin() {
   const params = { respondentType, search: search || undefined, page, pageSize: 12 };
   const submissions = useListAdminSubmissions(params, { query: { queryKey: getListAdminSubmissionsQueryKey(params), enabled: !!session.data?.authenticated && tab === 'responses', retry: false } });
   const qualitative = useListQualitativeResponses({ query: { queryKey: getListQualitativeResponsesQueryKey(), enabled: !!session.data?.authenticated && tab === 'qualitative', retry: false } });
+  const qualitativeQuestions = [...new Set((qualitative.data ?? []).map((response) => response.question))].sort((a, b) => a.localeCompare(b));
+  const qualitativeRows = (qualitative.data ?? []).filter((response) => {
+    const matchesType = qualitativeTypeFilter === 'all' || response.respondentType === qualitativeTypeFilter;
+    const matchesQuestion = qualitativeQuestionFilter === 'all' || response.question === qualitativeQuestionFilter;
+    const search = qualitativeSearch.trim().toLocaleLowerCase();
+    const matchesSearch = !search || response.question.toLocaleLowerCase().includes(search) || response.answer.toLocaleLowerCase().includes(search);
+    return matchesType && matchesQuestion && matchesSearch;
+  });
+  const qualitativeGroups = qualitativeRows.reduce((groups, response) => {
+    const group = groups.get(response.question) ?? [];
+    group.push(response);
+    groups.set(response.question, group);
+    return groups;
+  }, new Map<string, typeof qualitativeRows>());
   const [exporting, setExporting] = useState(false);
   const remove = useDeleteAdminSubmission();
   if (session.isLoading) return <div className="loading-page"><div className="skeleton skeleton-title"/><div className="skeleton skeleton-card"/>Checking administrator session…</div>;
@@ -209,14 +271,107 @@ function Admin() {
   const deleteOne = () => {
     if (!deleting) return;
     remove.mutate({ id: deleting }, {
-      onSuccess: async () => { setFeedback('Response deleted.'); setDeleting(null); await Promise.all([client.invalidateQueries({ queryKey: getGetAdminOverviewQueryKey() }), client.invalidateQueries({ queryKey: getListAdminSubmissionsQueryKey() }), client.invalidateQueries({ queryKey: getListQualitativeResponsesQueryKey() })]); },
+      onSuccess: async () => { setFeedback('Response deleted.'); setDeleting(null); setSelectedResponse((current) => current?.id === deleting ? null : current); await Promise.all([client.invalidateQueries({ queryKey: getGetAdminOverviewQueryKey() }), client.invalidateQueries({ queryKey: getListAdminSubmissionsQueryKey() }), client.invalidateQueries({ queryKey: getListQualitativeResponsesQueryKey() })]); },
       onError: () => setFeedback('The response was not deleted. Please try again.'),
     });
   };
   const signOut = () => logout.mutate(undefined, { onSuccess: () => { client.setQueryData(getGetAdminSessionQueryKey(), { authenticated: false, email: null }); setLocation('/admin/login'); }, onError: () => setFeedback('Could not end the session. Please try again.') });
-  return <div className="admin-layout"><aside className="admin-sidebar"><Brand inverse/><div className="workspace-label">RESEARCH WORKSPACE</div><nav className="admin-nav" aria-label="Research dashboard"><button className={tab === 'overview' ? 'active' : ''} onClick={() => setTab('overview')}><span className="nav-symbol">01</span> Overview</button><button className={tab === 'responses' ? 'active' : ''} onClick={() => { setPage(1); setTab('responses'); }}><span className="nav-symbol">02</span> Responses</button><button className={tab === 'qualitative' ? 'active' : ''} onClick={() => setTab('qualitative')}><span className="nav-symbol">03</span> Qualitative</button><button className={tab === 'settings' ? 'active' : ''} onClick={() => setTab('settings')}><span className="nav-symbol"><SettingsIcon size={16}/></span> Settings</button><button onClick={exportWorkbook} disabled={exporting}><span className="nav-symbol"><Download size={16}/></span> Download Excel</button></nav><div className="sidebar-bottom"><div className="admin-profile"><span className="admin-avatar">{(session.data.email || 'A').slice(0,1).toUpperCase()}</span><span><strong>Research admin</strong><small>{session.data.email}</small></span></div><button className="logout-button" onClick={signOut} disabled={logout.isPending}><LogOut size={16}/> {logout.isPending ? 'Signing out…' : 'Sign out'}</button></div></aside><main className="admin-main"><header className="admin-top"><div className="crumb">GWIZA RESEARCH <span>/</span> {tab.toUpperCase()}</div><button className="button button-soft button-small" onClick={exportWorkbook} disabled={exporting}><Download size={16}/>{exporting ? 'Preparing…' : 'Download Excel'}</button></header>{feedback && <div className="admin-feedback" role="status">{feedback}<button aria-label="Dismiss message" onClick={() => setFeedback('')}><X size={15}/></button></div>}{tab === 'overview' && <Overview overview={overview} onRetry={() => overview.refetch()} onResponses={() => setTab('responses')}/ >}{tab === 'responses' && <section className="admin-section"><div className="admin-page-heading"><div><span className="section-index">SUBMISSION RECORDS</span><h1 className="serif">Responses</h1><p>Anonymous survey submissions. Search uses submission IDs.</p></div></div><div className="table-controls"><label className="search-box"><span className="sr-only">Search response ID</span><input type="search" placeholder="Search submission ID" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} data-testid="input-response-search"/></label><label className="filter-box"><span className="sr-only">Filter respondent type</span><select value={filter} onChange={(e) => { setFilter(e.target.value); setPage(1); }} data-testid="select-respondent-filter"><option value="all">All respondents</option>{Object.keys(typeName).map((t) => <option value={t} key={t}>{typeName[t as RespondentType]}</option>)}</select><ChevronDown size={15}/></label></div>{submissions.isLoading ? <SkeletonRows/> : submissions.isError ? <QueryError onRetry={() => submissions.refetch()}/> : submissions.data?.items.length ? <><div className="response-list">{submissions.data.items.map((item) => <article className="response-row" key={item.id}><div className="response-meta"><span className="type-pill">{typeName[item.respondentType]}</span><time>{new Date(item.submittedAt).toLocaleDateString()}</time></div><h3>Submission <code>{item.id}</code></h3><p>{[item.ageGroup, item.region, item.schoolSetting].filter(Boolean).join(' · ') || 'No broad context answers provided'}</p><details className="answer-details"><summary>Inspect submitted answers <ChevronDown size={15}/></summary><div className="answer-list">{Object.entries(item.responses).map(([k, v]) => <div key={k}><strong>{labelize(k)}</strong><span>{formatAnswer(v)}</span></div>)}</div></details><button className="delete-button" onClick={() => setDeleting(item.id)} data-testid={`button-delete-${item.id}`}><Trash2 size={15}/> Delete response</button></article>)}</div><div className="pagination"><span>Page {submissions.data.page} of {Math.max(1, Math.ceil(submissions.data.total / submissions.data.pageSize))} · {submissions.data.total} responses</span><div><button disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button><button disabled={page >= Math.ceil(submissions.data.total / submissions.data.pageSize)} onClick={() => setPage(page + 1)}>Next</button></div></div></> : <EmptyState title="No responses yet." body="Once participants complete a survey, anonymous submission records will appear here."/>}</section>}{tab === 'qualitative' && <section className="admin-section"><div className="admin-page-heading"><div><span className="section-index">OPEN-ENDED ANSWERS</span><h1 className="serif">Qualitative responses</h1><p>Read what participants chose to share in their own words.</p></div></div>{qualitative.isLoading ? <SkeletonRows/> : qualitative.isError ? <QueryError onRetry={() => qualitative.refetch()}/> : qualitative.data?.length ? <div className="qualitative-list">{qualitative.data.map((q) => <article className="quote-card" key={`${q.id}-${q.question}`}><div className="quote-meta"><span className="type-pill">{typeName[q.respondentType]}</span><span>ID {q.id}</span><time>{new Date(q.submittedAt).toLocaleDateString()}</time></div><span className="section-index">{q.question}</span><blockquote>“{q.answer}”</blockquote></article>)}</div> : <EmptyState title="No written responses yet." body="Optional open-ended answers will appear here as participants share them."/>}</section>}{tab === 'settings' && <SettingsPanel email={session.data.email ?? ''}/>}
-</main>{deleting && <div className="modal-backdrop" role="presentation"><section className="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="delete-heading"><div className="modal-icon"><Trash2/></div><span className="section-index">PERMANENT ACTION</span><h2 id="delete-heading" className="serif">Delete this response?</h2><p>Are you sure you want to permanently delete this response? This action cannot be undone.</p><div className="delete-id"><span>Submission ID</span><code>{deleting}</code></div><div className="modal-actions"><button className="button button-soft" onClick={() => setDeleting(null)} disabled={remove.isPending}>Keep response</button><button className="button button-danger" onClick={deleteOne} disabled={remove.isPending} data-testid="button-confirm-delete">{remove.isPending ? 'Deleting…' : 'Delete response'}</button></div></section></div>}</div>;
+  return <div className="admin-layout">
+    <aside className="admin-sidebar">
+      <Brand inverse/>
+      <div className="workspace-label">RESEARCH WORKSPACE</div>
+      <nav className="admin-nav" aria-label="Research dashboard">
+        <button className={tab === 'overview' ? 'active' : ''} onClick={() => setTab('overview')}><span className="nav-symbol">01</span> Overview</button>
+        <button className={tab === 'responses' ? 'active' : ''} onClick={() => { setPage(1); setSelectedResponse(null); setTab('responses'); }}><span className="nav-symbol">02</span> Responses</button>
+        <button className={tab === 'qualitative' ? 'active' : ''} onClick={() => setTab('qualitative')}><span className="nav-symbol">03</span> Qualitative</button>
+        <button className={tab === 'ai' ? 'active' : ''} onClick={() => setTab('ai')}><span className="nav-symbol"><Sparkles size={15}/></span> Gwiza AI</button>
+        <button className={tab === 'settings' ? 'active' : ''} onClick={() => setTab('settings')}><span className="nav-symbol"><SettingsIcon size={16}/></span> Settings</button>
+        <button onClick={exportWorkbook} disabled={exporting}><span className="nav-symbol"><Download size={16}/></span> Download Excel</button>
+      </nav>
+      <div className="sidebar-bottom">
+        <div className="admin-profile"><span className="admin-avatar">{(session.data.email || 'A').slice(0,1).toUpperCase()}</span><span><strong>Research admin</strong><small>{session.data.email}</small></span></div>
+        <button className="logout-button" onClick={signOut} disabled={logout.isPending}><LogOut size={16}/> {logout.isPending ? 'Signing out…' : 'Sign out'}</button>
+      </div>
+    </aside>
+    <main className="admin-main">
+      <header className="admin-top"><div className="crumb">GWIZA RESEARCH <span>/</span> {tab.toUpperCase()}</div><button className="button button-soft button-small" onClick={exportWorkbook} disabled={exporting}><Download size={16}/>{exporting ? 'Preparing…' : 'Download Excel'}</button></header>
+      {feedback && <div className="admin-feedback" role="status">{feedback}<button aria-label="Dismiss message" onClick={() => setFeedback('')}><X size={15}/></button></div>}
+      {tab === 'overview' && <Overview overview={overview} onRetry={() => overview.refetch()} onResponses={() => setTab('responses')}/>}
+      {tab === 'responses' && <section className="admin-section">
+        {selectedResponse ? <ResponseDetail submission={selectedResponse} onBack={() => setSelectedResponse(null)} onDelete={() => setDeleting(selectedResponse.id)}/> : <>
+          <div className="admin-page-heading"><div><span className="section-index">SUBMISSION RECORDS</span><h1 className="serif">Responses</h1><p>School names are required. Search by submission ID or school.</p></div></div>
+          <div className="table-controls">
+            <label className="search-box"><span className="sr-only">Search responses</span><input type="search" placeholder="Search submission ID or school" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} data-testid="input-response-search"/></label>
+            <label className="filter-box"><span className="sr-only">Filter respondent type</span><select value={filter} onChange={(e) => { setFilter(e.target.value); setPage(1); }} data-testid="select-respondent-filter"><option value="all">All respondents</option>{Object.keys(typeName).map((t) => <option value={t} key={t}>{typeName[t as RespondentType]}</option>)}</select><ChevronDown size={15}/></label>
+          </div>
+          {submissions.isLoading ? <SkeletonRows/> : submissions.isError ? <QueryError onRetry={() => submissions.refetch()}/> : submissions.data?.items.length ? <>
+            <div className="response-list">{submissions.data.items.map((item) => <article className="response-row" key={item.id}>
+              <div className="response-meta"><span className="type-pill">{typeName[item.respondentType]}</span><time>{new Date(item.submittedAt).toLocaleDateString()}</time></div>
+              <h3>{identities[item.respondentType].title} response</h3>
+              <p>{[item.schoolName, item.ageGroup, item.region, item.schoolSetting].filter(Boolean).join(' · ') || 'No additional context provided'}</p>
+              <div className="response-row-actions"><button className="button button-soft button-small" onClick={() => setSelectedResponse(item)}>View response <ArrowRight size={15}/></button><button className="delete-button" onClick={() => setDeleting(item.id)} data-testid={`button-delete-${item.id}`}><Trash2 size={15}/> Delete response</button></div>
+            </article>)}</div>
+            <div className="pagination"><span>Page {submissions.data.page} of {Math.max(1, Math.ceil(submissions.data.total / submissions.data.pageSize))} · {submissions.data.total} responses</span><div><button disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button><button disabled={page >= Math.ceil(submissions.data.total / submissions.data.pageSize)} onClick={() => setPage(page + 1)}>Next</button></div></div>
+          </> : <EmptyState title="No responses yet." body="Once participants complete a survey, submission records will appear here."/>}
+        </>}
+      </section>}
+      {tab === 'qualitative' && <section className="admin-section">
+        <div className="admin-page-heading"><div><span className="section-index">OPEN-ENDED ANSWERS</span><h1 className="serif">Qualitative responses</h1><p>Read participants’ answers grouped by question.</p></div></div>
+        {qualitative.isLoading ? <SkeletonRows/> : qualitative.isError ? <QueryError onRetry={() => qualitative.refetch()}/> : qualitative.data?.length ? <>
+          <div className="table-controls qualitative-controls">
+            <label className="search-box"><span className="sr-only">Search qualitative responses</span><input type="search" placeholder="Search questions and answers" value={qualitativeSearch} onChange={(event) => setQualitativeSearch(event.target.value)}/></label>
+            <label className="filter-box"><span className="sr-only">Filter qualitative respondent type</span><select value={qualitativeTypeFilter} onChange={(event) => setQualitativeTypeFilter(event.target.value as 'all' | RespondentType)}><option value="all">All respondent types</option>{Object.keys(typeName).map((type) => <option value={type} key={type}>{typeName[type as RespondentType]}</option>)}</select><ChevronDown size={15}/></label>
+            <label className="filter-box qualitative-question-filter"><span className="sr-only">Filter by question</span><select value={qualitativeQuestionFilter} onChange={(event) => setQualitativeQuestionFilter(event.target.value)}><option value="all">All questions</option>{qualitativeQuestions.map((question) => <option value={question} key={question}>{question}</option>)}</select><ChevronDown size={15}/></label>
+          </div>
+          <p className="qualitative-result-count">{qualitativeRows.length} {qualitativeRows.length === 1 ? 'answer' : 'answers'} across {qualitativeGroups.size} {qualitativeGroups.size === 1 ? 'question' : 'questions'}</p>
+          {qualitativeGroups.size ? <div className="qualitative-groups">{Array.from(qualitativeGroups, ([question, responses]) => <section className="qualitative-group" key={question}>
+            <div className="qualitative-group-heading"><h2>{question}</h2><span>{responses.length} {responses.length === 1 ? 'answer' : 'answers'}</span></div>
+            <div className="qualitative-quote-grid">{responses.map((response) => <article className="quote-card" key={`${response.id}-${response.question}`}><div className="quote-meta"><span className="type-pill">{typeName[response.respondentType]}</span><span>ID {response.id}</span><time>{new Date(response.submittedAt).toLocaleDateString()}</time></div><blockquote>“{response.answer}”</blockquote></article>)}</div>
+          </section>)}</div> : <EmptyState title="No matching written responses." body="Try a different respondent type, question or search term."/>}
+        </> : <EmptyState title="No written responses yet." body="Optional open-ended answers will appear here as participants share them."/>}
+      </section>}
+      {tab === 'settings' && <SettingsPanel email={session.data.email ?? ''}/>}
+      {tab === 'ai' && <AIAnalysisPanel/>}
+    </main>
+    {deleting && <div className="modal-backdrop" role="presentation"><section className="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="delete-heading"><div className="modal-icon"><Trash2/></div><span className="section-index">PERMANENT ACTION</span><h2 id="delete-heading" className="serif">Delete this response?</h2><p>Are you sure you want to permanently delete this response? This action cannot be undone.</p><div className="delete-id"><span>Submission ID</span><code>{deleting}</code></div><div className="modal-actions"><button className="button button-soft" onClick={() => setDeleting(null)} disabled={remove.isPending}>Keep response</button><button className="button button-danger" onClick={deleteOne} disabled={remove.isPending} data-testid="button-confirm-delete">{remove.isPending ? 'Deleting…' : 'Delete response'}</button></div></section></div>}
+  </div>;
 }
+
+function ResponseDetail({ submission, onBack, onDelete }: { submission: SurveySubmission; onBack: () => void; onDelete: () => void }) {
+const steps = submission.respondentType === 'student' ? studentSteps : otherSteps[submission.respondentType];
+const schoolName = submission.schoolName ?? (typeof submission.responses.schoolName === 'string' ? submission.responses.schoolName : '');
+return <div className="response-detail">
+  <button className="back-link response-back" onClick={onBack}><ArrowLeft size={16}/> Back to responses</button>
+  <div className="response-detail-heading">
+    <div><span className="section-index">SUBMISSION DETAIL</span><h1 className="serif">{identities[submission.respondentType].title}</h1><p>Submitted {new Date(submission.submittedAt).toLocaleString()}</p></div>
+    <span className="response-status"><Check size={14}/> Received</span>
+  </div>
+  <div className="response-overview">
+    <article><span>Submission ID</span><code>{submission.id}</code></article>
+    <article><span>School</span><strong>{schoolName || 'Not recorded'}</strong></article>
+    <article><span>Respondent type</span><strong>{typeName[submission.respondentType]}</strong></article>
+    <article><span>Response status</span><strong>Submitted</strong></article>
+  </div>
+  <div className="response-detail-title"><div><span className="section-index">QUESTIONNAIRE</span><h2 className="serif">Answers</h2></div><button className="delete-button" onClick={onDelete}><Trash2 size={15}/> Delete response</button></div>
+  <div className="response-answer-sections">
+    {steps.map((step) => <section className="response-answer-section" key={step.title}>
+      <h3>{step.title}</h3>
+      <div className="response-answer-grid">{step.questions.map((question) => {
+        const answer = submission.responses[question.key];
+        const answered = isAnswered(question, answer);
+        return <article className="response-answer-card" key={question.key}>
+          <h4>{question.label}</h4>
+          {question.optional && <span className="response-optional-label">Optional</span>}
+          {!answered ? <p className="response-not-answered">Not answered</p> : Array.isArray(answer)
+            ? <div className="response-answer-chips">{answer.filter((item): item is string => typeof item === 'string' && !!item.trim()).map((item) => <span key={item}>{item}</span>)}</div>
+            : <p className="response-answer-text">{formatAnswer(answer)}</p>}
+        </article>;
+      })}</div>
+    </section>)}
+  </div>
+</div>;
+}
+
 function SettingsPanel({ email }: { email: string }) {
   return <section className="admin-section">
     <div className="admin-page-heading">
@@ -225,8 +380,38 @@ function SettingsPanel({ email }: { email: string }) {
     <div className="settings-grid">
       <article className="settings-panel"><span>Signed-in administrator</span><strong>{email}</strong><p>Administrator accounts are configured privately on the API server.</p></article>
       <article className="settings-panel"><span>Research data access</span><strong>Restricted</strong><p>Survey records and exports are available only to authenticated administrators.</p></article>
-      <article className="settings-panel"><span>Participant privacy</span><strong>Anonymous by design</strong><p>The survey does not request names, contact details, or exact school names.</p></article>
+      <article className="settings-panel"><span>Participant privacy</span><strong>School name required</strong><p>Names and contact details are not requested. School names are visible to administrators and used for grouped response counts.</p></article>
     </div>
+  </section>;
+}
+
+function AIAnalysisPanel() {
+  return <section className="admin-section ai-analysis">
+    <div className="admin-page-heading">
+      <div><span className="section-index">RESEARCH ASSISTANT</span><h1 className="serif">Gwiza AI</h1><p>Explore survey patterns and ask questions about the findings.</p></div>
+    </div>
+    <div className="ai-setup-status" role="status">
+      <span className="ai-status-icon"><Sparkles size={18}/></span>
+      <div><strong>AI connection not set up yet</strong><p>This screen is ready for the next step. No AI requests are being sent, and no provider key belongs in the frontend.</p></div>
+      <span className="ai-status-pill">Not connected</span>
+    </div>
+    <div className="ai-analysis-grid">
+      <article className="ai-panel">
+        <span className="section-index">SUMMARY</span>
+        <h2 className="serif">Analysis of responses</h2>
+        <p>When connected, Gwiza AI will summarize verified response counts and de-identified themes for your team to review.</p>
+        <button className="button button-soft" type="button" disabled><Sparkles size={16}/> Generate analysis</button>
+        <span className="ai-panel-note">Available after the secure server connection is configured.</span>
+      </article>
+      <article className="ai-panel ai-question-panel">
+        <span className="section-index">ASK A QUESTION</span>
+        <h2 className="serif">What would you like to understand?</h2>
+        <label htmlFor="ai-question">Question about survey findings</label>
+        <textarea id="ai-question" rows={4} disabled placeholder="For example: What barriers to seeking support did students mention most?"/>
+        <div className="ai-question-footer"><span>Answers will cite the response counts used.</span><button className="button button-primary" type="button" disabled>Ask Gwiza AI <ArrowRight size={16}/></button></div>
+      </article>
+    </div>
+    <aside className="ai-safety-note"><LockKeyhole size={17}/><p><strong>Designed for careful research use.</strong> The planned integration will call OpenAI from the authenticated server, not the browser. It should use aggregate statistics and de-identified themes, avoid school names and submission IDs, and label AI interpretations as drafts for human review.</p></aside>
   </section>;
 }
 
@@ -244,6 +429,7 @@ function Overview({ overview, onRetry, onResponses }: { overview: UseQueryResult
   ];
   const sets = [
     { title: 'Respondents by type', data: d.respondentTypes },
+    { title: 'Responses by school', data: d.schools },
     { title: 'Student respondents by region', data: d.regions },
     { title: 'School setting', data: d.schoolSettings },
     { title: 'Challenges reported', data: d.challenges },
@@ -255,7 +441,7 @@ function Overview({ overview, onRetry, onResponses }: { overview: UseQueryResult
     { title: 'Digital trust factors', data: d.digitalTrustFactors },
   ];
   return <section className="admin-section">
-    <div className="admin-page-heading"><div><span className="section-index">THE RESEARCH, SO FAR</span><h1 className="serif">Overview</h1><p>A live view of anonymous responses collected by the GWIZA team.</p></div><span className="latest-update">Latest response <strong>{d.latestSubmission ? new Date(d.latestSubmission).toLocaleString() : 'None yet'}</strong></span></div>
+    <div className="admin-page-heading"><div><span className="section-index">THE RESEARCH, SO FAR</span><h1 className="serif">Overview</h1><p>A live view of responses collected by the GWIZA team, including school-level counts.</p></div><span className="latest-update">Latest response <strong>{d.latestSubmission ? new Date(d.latestSubmission).toLocaleString() : 'None yet'}</strong></span></div>
     <div className="metric-grid">{tiles.map((item) => <article className="metric-card" key={item.label}><span>{item.label}</span><strong>{item.value.toLocaleString()}</strong></article>)}</div>
     {d.totalResponses ? <>
       <div className="chart-grid">{sets.slice(0, 4).map((set) => <ChartPanel key={set.title} title={set.title} data={set.data}/>)}</div>

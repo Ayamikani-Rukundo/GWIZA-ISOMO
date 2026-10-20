@@ -69,6 +69,7 @@ export interface AdminOverview {
   respondentTypes: CountItem[];
   regions: CountItem[];
   schoolSettings: CountItem[];
+  schools: CountItem[];
   challenges: CountItem[];
   supportRatings: CountItem[];
   helpSeekingComfort: CountItem[];
@@ -89,6 +90,8 @@ export interface SurveySubmission {
   region: string | null;
   /** @nullable */
   schoolSetting: string | null;
+  /** @nullable */
+  schoolName: string | null;
   submittedAt: string;
   surveyVersion: string;
   responses: SurveySubmissionResponses;

@@ -1,6 +1,6 @@
 # GWIZA Research
 
-GWIZA Research is an anonymous, mobile-first action-research platform for learning about secondary-school students' well-being, the support currently available in Rwanda, barriers to seeking help, and support young people would actually use. It is for research data collection—not diagnosis, treatment, or a mental-health service.
+GWIZA Research is a privacy-conscious, mobile-first action-research platform for learning about secondary-school students' well-being, the support currently available in Rwanda, barriers to seeking help, and support young people would actually use. Participants are not asked for personal names or contact details; a required school name is visible to authorized research administrators and used for school-level response counts. It is for research data collection—not diagnosis, treatment, or a mental-health service.
 
 ## Technology
 
@@ -13,7 +13,7 @@ GWIZA Research is an anonymous, mobile-first action-research platform for learni
 ## Supabase setup
 
 1. Create a Supabase project for the research team.
-2. Apply the SQL files in `artifacts/gwiza-research/supabase/migrations/` in filename order using the Supabase SQL editor or the Supabase CLI. If the first two migrations were already applied, apply only the new `20261008002000_gwiza_response_tables_and_rpc.sql` migration.
+2. Apply the SQL files in `artifacts/gwiza-research/supabase/migrations/` in filename order using the Supabase SQL editor or the Supabase CLI. For an existing project, apply each migration that has not yet been run, including `20261008004000_gwiza_school_analytics.sql` to add school-name storage and overview counts and `20261008005000_require_school_name.sql` to require school names on new submissions.
 3. In the project's API settings, configure its project URL (or REST URL) and a fresh server-only secret key. The API accepts either URL format. Do not use the secret key in a browser, `VITE_` variable, public repository, or UI.
 4. Set the server environment variables below. Respondents use the GWIZA API; the website never connects directly to Supabase. `SUPABASE_PUBLISHABLE_KEY` is included as a placeholder for future approved public-client use and is not used by this server-mediated app.
 
@@ -37,7 +37,7 @@ The deployed API server must receive these settings through its private environm
 
 ## Database schema
 
-`public.survey_submissions` remains the master record, with a UUID, respondent category, broad optional age/region/school-setting context, survey version, consent acknowledgement, timestamp, and JSONB answers. The migration adds four real, one-to-one response tables (`student_responses`, `school_staff_responses`, `professional_responses`, and `other_responses`) with explicit analysis-friendly fields and links each row to its master record by `submission_id`. Existing submissions are backfilled. New submissions are written to both the master and the matching response table in one database transaction. Checkbox responses stay as JSON arrays. Row deletion cascades to the matching response row. The schema intentionally does not request names, phone numbers, exact school names, home addresses, or IP addresses. A restricted database function provides grouped dashboard counts without returning individual responses to the public.
+`public.survey_submissions` remains the master record, with a UUID, respondent category, required school name, broad optional age/region/school-setting context, survey version, consent acknowledgement, timestamp, and JSONB answers. The migration adds four real, one-to-one response tables (`student_responses`, `school_staff_responses`, `professional_responses`, and `other_responses`) with explicit analysis-friendly fields and links each row to its master record by `submission_id`. Existing submissions are backfilled. New submissions are written to both the master and the matching response table in one database transaction. Checkbox responses stay as JSON arrays. Row deletion cascades to the matching response row. The schema does not request names, phone numbers, home addresses, or IP addresses. A restricted database function provides grouped dashboard counts without returning individual responses to the public.
 
 The admin's **Download Excel** action produces an `.xlsx` workbook containing a summary sheet and separate filterable sheets for Students, School staff, Professionals, and Other respondents.
 
@@ -46,7 +46,7 @@ The admin's **Download Excel** action produces an `.xlsx` workbook containing a 
 1. Install Node.js 22.12+ and pnpm 9+.
 2. From the repository root, run `pnpm install`.
 3. Copy `.env.example` to `.env.local` in PowerShell with `Copy-Item .env.example .env.local`, then add the Supabase URL, newly rotated server-only key, and private administrator credentials. `.env.local` is ignored by Git and loaded by Node only for the API process.
-4. Apply all four SQL migrations to Supabase in filename order. If the first three were already applied, apply the fourth migration to backfill any responses saved while an older API server was running.
+4. Apply all five SQL migrations to Supabase in filename order. If the first four are already applied, apply `20261008005000_require_school_name.sql`; it requires school names on new submissions while keeping historical submissions valid.
 5. From the repository root, run `pnpm dev`.
 6. Open `http://localhost:5173`. The API runs on `http://localhost:3001`, and Vite proxies browser `/api` requests to it.
 
@@ -115,7 +115,7 @@ Use the Vercel deployment URL to share the live site. Do not use the local `.env
 
 ## Change survey questions
 
-The respondent-specific survey screens define the question text, choices, stages, and answer keys. Keep those keys stable once research collection starts; changing their meaning should also update the survey version, typed response-table fields, qualitative-response mapping, and Excel columns so later analysis can distinguish questionnaire versions. Do not add questions that request identifying information or imply that a digital product is the intended solution.
+The respondent-specific survey screens define the question text, choices, stages, and answer keys. Keep those keys stable once research collection starts; changing their meaning should also update the survey version, typed response-table fields, qualitative-response mapping, and Excel columns so later analysis can distinguish questionnaire versions. Do not request personal names or contact details, and do not imply that a digital product is the intended solution. The required school-name field is a separately disclosed affiliation used for grouped response counts.
 
 ## Change administrator configuration
 

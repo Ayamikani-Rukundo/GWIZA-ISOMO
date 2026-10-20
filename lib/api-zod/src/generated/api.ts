@@ -17,7 +17,7 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
- * @summary Submit an anonymous research survey
+ * @summary Submit a research survey with optional school affiliation
  */
 export const CreateSurveySubmissionBody = zod.object({
   "respondentType": zod.enum(['student', 'school', 'professional', 'other']),
@@ -87,6 +87,10 @@ export const GetAdminOverviewResponse = zod.object({
   "label": zod.string(),
   "count": zod.number().int()
 })),
+  "schools": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number().int()
+})),
   "challenges": zod.array(zod.object({
   "label": zod.string(),
   "count": zod.number().int()
@@ -144,6 +148,7 @@ export const ListAdminSubmissionsResponse = zod.object({
   "ageGroup": zod.string().nullable(),
   "region": zod.string().nullable(),
   "schoolSetting": zod.string().nullable(),
+  "schoolName": zod.string().nullable(),
   "submittedAt": zod.coerce.date(),
   "surveyVersion": zod.string(),
   "responses": zod.record(zod.string(), zod.unknown())
