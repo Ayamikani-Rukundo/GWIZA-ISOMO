@@ -21,7 +21,7 @@ function Brand({ inverse = false }: { inverse?: boolean }) {
 }
 function Header({ admin = false }: { admin?: boolean }) {
   const [open, setOpen] = useState(false);
-  return <header className="topbar"><div className="topbar-inner"><Brand/><nav className={`topnav ${open ? 'nav-open' : ''}`} aria-label="Main navigation"><Link href="/survey">Take part</Link><a href="/#about">About the research</a><Link href={admin ? '/admin' : '/#team'}>{admin ? 'Research workspace' : 'Our team'}</Link></nav><button className="menu-toggle" aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen(!open)} data-testid="button-menu">{open ? <X/> : <Menu/>}</button></div></header>;
+  return <header className="topbar"><div className="topbar-inner"><Brand/><nav className={`topnav ${open ? 'nav-open' : ''}`} aria-label="Main navigation"><Link href="/survey">Take part</Link><a href="/#about">About the research</a><Link href={admin ? '/admin' : '/admin/login'}>{admin ? 'Research workspace' : 'Research Team'}</Link></nav><button className="menu-toggle" aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen(!open)} data-testid="button-menu">{open ? <X/> : <Menu/>}</button></div></header>;
 }
 function Notice({ compact = false }: { compact?: boolean }) {
   return <div className={`notice ${compact ? 'notice-compact' : ''}`}><ShieldCheck size={19}/><p><strong>Research only.</strong> This survey is not a diagnosis or treatment service. Please do not include your name or details that identify you.</p></div>;
