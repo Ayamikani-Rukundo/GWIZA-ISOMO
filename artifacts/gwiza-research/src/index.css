@@ -579,6 +579,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .method-symbol { width:72px; height:72px; border:1px solid #8ba797; border-radius:50%; display:flex; gap:4px; justify-content:center; align-items:center; }
 .method-symbol span { width:4px; height:20px; border-radius:3px; background:#c3d5c8; transform:rotate(24deg); }
 .method-symbol span:nth-child(2) { height:31px; background:#d9c89f; }
+.team-section { max-width:1180px; margin:auto; padding:82px 7% 90px; }
+.team-heading { max-width:560px; margin-bottom:35px; }
+.team-heading h2 { color:#25483a; font-size:clamp(31px,4vw,45px); line-height:1.15; font-weight:500; letter-spacing:-.025em; margin:16px 0 0; }
+.team-heading p { max-width:480px; color:#637168; font-size:14px; line-height:1.7; margin:16px 0 0; }
+.team-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:13px; }
+.team-card { min-width:0; padding:24px 22px; background:#fdfcf7; border:1px solid #e0e5db; border-radius:9px; }
+.team-role { color:#718779; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+.team-card h3 { color:#294a3d; font-size:17px; line-height:1.4; margin:20px 0 10px; }
+.team-card a { color:#587165; font-size:12px; line-height:1.6; overflow-wrap:anywhere; }
 .closing-note { max-width:980px; margin:auto; padding:75px 8%; display:grid; grid-template-columns:1fr 1fr; gap:10%; align-items:center; }
 .closing-note h2 { font-size:34px; }
 .closing-note > p { color:#5f7067; font-size:14px; line-height:1.8; }
@@ -841,7 +850,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 
 @media (max-width: 900px) {
   .hero-wrap { padding:65px 7% 72px; grid-template-columns:1fr .8fr; }.hero-art { transform:scale(.88); transform-origin:center; }
-  .respondent-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.method-section { grid-template-columns:75px 1fr; }.method-section > p { grid-column:2; margin-top:-10px; }
+  .respondent-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.team-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.method-section { grid-template-columns:75px 1fr; }.method-section > p { grid-column:2; margin-top:-10px; }
   .admin-sidebar { width:205px; }.admin-section { padding-left:4%; padding-right:4%; }.metric-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
 }
 @media (max-width: 640px) {
@@ -855,6 +864,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   .research-strip { padding:43px 24px; grid-template-columns:1fr; gap:16px; }.research-strip h2,.section-heading h2 { font-size:36px; }.strip-copy p { font-size:13px; }
   .participate-section { padding:58px 21px 65px; }.section-heading { margin-bottom:24px; }.section-heading h2 { font-size:35px; }.respondent-grid { gap:9px; }.respondent-card { min-height:175px; padding:16px 14px; }.respondent-card h3 { font-size:13px; margin:36px 0 7px; }.respondent-card p { font-size:10px; }.card-arrow { right:12px; top:12px; }
   .method-section { padding:38px 24px; grid-template-columns:56px 1fr; gap:15px; }.method-symbol { width:49px; height:49px; }.method-symbol span { height:14px; }.method-symbol span:nth-child(2) { height:22px; }.method-section h2 { font-size:30px; }.method-section > p { grid-column:1 / -1; margin:1px 0 0; }
+  .team-section { padding:54px 21px 60px; }.team-heading { margin-bottom:24px; }.team-heading h2 { font-size:35px; }.team-heading p { font-size:13px; }.team-grid { grid-template-columns:1fr; gap:9px; }.team-card { padding:20px 18px; }.team-card h3 { margin:15px 0 8px; }
   .closing-note { padding:47px 24px; grid-template-columns:1fr; gap:9px; }.closing-note h2 { font-size:32px; }
   .footer { padding:20px 21px; flex-wrap:wrap; }.footer > div { order:3; flex-basis:100%; }.health-status { display:none; }
   .subpage { padding:30px 21px 52px; }.choice-intro { margin:42px 0 25px; }.choice-intro h1 { font-size:39px; }.subpage .respondent-card { min-height:165px; }.subpage .respondent-grid { grid-template-columns:1fr 1fr; }.subpage .respondent-card h3 { margin-top:31px; }.subpage-notice .notice { padding:13px; }
