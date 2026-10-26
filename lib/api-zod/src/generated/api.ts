@@ -91,6 +91,38 @@ export const GetAdminOverviewResponse = zod.object({
   "label": zod.string(),
   "count": zod.number().int()
 })),
+  "schoolStatus": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number().int()
+})),
+  "genderStatus": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number().int()
+})),
+  "schoolPsychologist": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number().int()
+})),
+  "mentalHealthHistory": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number().int()
+})),
+  "financialSupport": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number().int()
+})),
+  "familySize": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number().int()
+})),
+  "familyStatus": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number().int()
+})),
+  "schoolYear": zod.array(zod.object({
+  "label": zod.string(),
+  "count": zod.number().int()
+})),
   "challenges": zod.array(zod.object({
   "label": zod.string(),
   "count": zod.number().int()

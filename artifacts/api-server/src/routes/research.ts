@@ -50,9 +50,13 @@ type ResponseFieldKind = "single" | "multiple" | "text";
 
 const responseFields: Record<RespondentType, Record<string, ResponseFieldKind>> = {
   student: {
-    ageGroup: "single", schoolSetting: "single", region: "single",
-    wellbeingFrequency: "single", challenges: "multiple", schoolImpact: "single",
-    schoolEffects: "multiple", supportOptions: "multiple", supportAwareness: "single",
+    schoolYear: "single", ageGroup: "single", schoolStatus: "single",
+    genderStatus: "single", schoolSetting: "single", familySize: "single",
+    familyStatus: "single", region: "single",
+    wellbeingFrequency: "single", schoolPsychologist: "single",
+    mentalHealthHistory: "single", financialSupport: "single",
+    challenges: "multiple", schoolImpact: "single", schoolEffects: "multiple",
+    supportOptions: "multiple", supportAwareness: "single",
     mentalHealthInformation: "single", helpSeekingComfort: "single",
     preferredFirstContact: "single", barriers: "multiple", schoolSupportRating: "single",
     missingSupport: "text", desiredChange: "text", preferredSupportTypes: "multiple",
@@ -142,12 +146,14 @@ const workbookSheets: Record<RespondentType, { name: string; columns: string[] }
   student: {
     name: "Students",
     columns: [
-      "wellbeing_frequency", "challenges", "school_impact", "school_effects",
-      "support_options", "support_awareness", "mental_health_information",
-      "help_seeking_comfort", "preferred_first_contact", "barriers",
-      "school_support_rating", "missing_support", "desired_change",
-      "preferred_support_types", "digital_comfort", "digital_trust_factors",
-      "desired_digital_support",
+      "school_year", "school_status", "gender_status", "family_size",
+      "family_status", "school_psychologist", "mental_health_history",
+      "financial_support", "wellbeing_frequency", "challenges",
+      "school_impact", "school_effects", "support_options",
+      "support_awareness", "mental_health_information", "help_seeking_comfort",
+      "preferred_first_contact", "barriers", "school_support_rating",
+      "missing_support", "desired_change", "preferred_support_types",
+      "digital_comfort", "digital_trust_factors", "desired_digital_support",
     ],
   },
   school: {

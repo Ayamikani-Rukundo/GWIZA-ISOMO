@@ -1,7 +1,9 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider, useQueryClient, type UseQueryResult } from '@tanstack/react-query';
 import { Route, Switch, Link, useLocation } from 'wouter';
-import { ArrowDown, ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, CircleHelp, Download, FileText, LockKeyhole, LogOut, Menu, Settings as SettingsIcon, ShieldCheck, Sparkles, Trash2, Users, X } from 'lucide-react';
+import { ArrowDown, ArrowLeft, ArrowRight, BarChart3, BookOpen, Check, ChevronDown, CircleHelp, Download, FileText, LockKeyhole, LogOut, Menu, Settings as SettingsIcon, ShieldCheck, Sparkles, Trash2, Users, X } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { getGetAdminOverviewQueryKey, getGetAdminSessionQueryKey, getHealthCheckQueryKey, getListAdminSubmissionsQueryKey, getListQualitativeResponsesQueryKey, useAdminLogin, useAdminLogout, useCreateSurveySubmission, useDeleteAdminSubmission, useGetAdminOverview, useGetAdminSession, useHealthCheck, useListAdminSubmissions, useListQualitativeResponses } from '@workspace/api-client-react';
 import type { AdminOverview, RespondentType, SurveySubmission } from '@workspace/api-client-react';
@@ -44,12 +46,20 @@ type Q = { key: string; label: string; kind?: 'multi' | 'text'; options?: string
 type Step = { title: string; note?: string; questions: Q[] };
 const studentSteps: Step[] = [
   { title: 'About you', note: 'A little context helps us understand the responses. Please answer broadly.', questions: [
+    { key: 'schoolYear', label: 'Which year are you in at school?', options: ['Senior 1', 'Senior 2', 'Senior 3', 'Senior 4', 'Senior 5', 'Senior 6', 'Prefer not to say'] },
     { key: 'ageGroup', label: 'What is your age group?', options: ['Under 13', '13–15', '16–18', '19 or above', 'Prefer not to say'] },
+    { key: 'schoolStatus', label: 'What is the status of your school?', options: ['Mixed school', 'Single-sex school', 'Prefer not to say'] },
+    { key: 'genderStatus', label: 'Which best describes your gender?', options: ['Female', 'Male', 'Non-binary', 'Prefer not to say'] },
     { key: 'schoolSetting', label: 'What is your school setting?', options: ['Day school', 'Boarding school', 'Both / mixed', 'Prefer not to say'] },
+    { key: 'familySize', label: 'How many people usually live in your household?', options: ['1–3 people', '4–5 people', '6–7 people', '8 or more people', 'Prefer not to say'] },
+    { key: 'familyStatus', label: 'Which best describes your family living situation?', options: ['Living with both parents', 'Living with one parent', 'Living with guardian or caregiver', 'Other family arrangement', 'Prefer not to say'] },
     { key: 'region', label: 'Which general area of Rwanda is your school located in?', options: ['Kigali City', 'Northern Province', 'Southern Province', 'Eastern Province', 'Western Province', 'Prefer not to say'] },
   ]},
   { title: 'Wellbeing & school life', note: 'We’re interested in experiences, not diagnosing anyone.', questions: [
     { key: 'wellbeingFrequency', label: 'During the past school term, how often have you felt overwhelmed by school or personal responsibilities?', options: ['Never', 'Rarely', 'Sometimes', 'Often', 'Very often', 'Prefer not to say'] },
+    { key: 'schoolPsychologist', label: 'Do you have access to a school psychologist or school counsellor at your school?', options: ['Yes', 'No', 'Not sure', 'Prefer not to say'] },
+    { key: 'mentalHealthHistory', label: 'Have you ever had suicidal thoughts, anxiety, or depression that affected your daily life?', options: ['Yes', 'No', 'Not sure', 'Prefer not to say'] },
+    { key: 'financialSupport', label: 'Do you receive any financial support or assistance for school or daily needs?', options: ['Yes, I receive support', 'No, I do not receive support', 'Not sure', 'Prefer not to say'] },
     { key: 'challenges', label: 'What kinds of challenges have affected your wellbeing recently?', kind: 'multi', options: ['Academic pressure', 'Examinations', 'Family responsibilities', 'Relationships / friendships', 'Bullying or discrimination', 'Financial difficulties', 'Loneliness or isolation', 'Pressure about the future', 'Lack of sleep / rest', 'Changes at home', 'Social pressure', 'Other', 'Prefer not to say'] },
     { key: 'schoolImpact', label: 'How much do these challenges affect your school life?', options: ['Not at all', 'A little', 'Somewhat', 'A lot', 'Extremely', 'Prefer not to say'] },
     { key: 'schoolEffects', label: 'In what ways can these challenges affect students at school?', kind: 'multi', options: ['Difficulty concentrating', 'Reduced motivation', 'Missing classes', 'Difficulty completing schoolwork', 'Difficulty participating in class', 'Social withdrawal', 'Conflict with others', 'Feeling unable to keep up', 'Other', 'Prefer not to say'] },
@@ -229,6 +239,7 @@ function Admin() {
   const [search, setSearch] = useState('');
   const [selectedResponse, setSelectedResponse] = useState<SurveySubmission | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
   const [feedback, setFeedback] = useState('');
   const logout = useAdminLogout();
   const overview = useGetAdminOverview({ query: { queryKey: getGetAdminOverviewQueryKey(), enabled: !!session.data?.authenticated, retry: false } });
@@ -266,7 +277,41 @@ function Admin() {
       window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       setFeedback('Your Excel workbook download has started.');
     } catch { setFeedback('We could not prepare the Excel workbook. Please try again.'); }
-    finally { setExporting(false); }
+    finally { setExporting(false); setDownloadMenuOpen(false); }
+  };
+
+  const exportOverviewPdf = async () => {
+    const reportElement = document.getElementById('gwiza-overview-report');
+    if (!reportElement) {
+      setFeedback('The chart summary is not available for export right now.');
+      setDownloadMenuOpen(false);
+      return;
+    }
+
+    setFeedback('');
+    setExporting(true);
+    try {
+      const canvas = await html2canvas(reportElement, { scale: 2, backgroundColor: '#f4f4ec', useCORS: true, scrollX: 0, scrollY: 0 });
+      const image = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 28;
+      const ratio = Math.min(
+        (pageWidth - margin * 2) / canvas.width,
+        (pageHeight - margin * 2) / canvas.height,
+      );
+      const pdfWidth = canvas.width * ratio;
+      const pdfHeight = canvas.height * ratio;
+      pdf.addImage(image, 'PNG', (pageWidth - pdfWidth) / 2, (pageHeight - pdfHeight) / 2, pdfWidth, pdfHeight);
+      pdf.save('gwiza-research-overview-report.pdf');
+      setFeedback('Your graph summary PDF has been downloaded.');
+    } catch {
+      setFeedback('We could not prepare the graph report PDF. Please try again.');
+    } finally {
+      setExporting(false);
+      setDownloadMenuOpen(false);
+    }
   };
   const deleteOne = () => {
     if (!deleting) return;
@@ -286,7 +331,10 @@ function Admin() {
         <button className={tab === 'qualitative' ? 'active' : ''} onClick={() => setTab('qualitative')}><span className="nav-symbol">03</span> Qualitative</button>
         <button className={tab === 'ai' ? 'active' : ''} onClick={() => setTab('ai')}><span className="nav-symbol"><Sparkles size={15}/></span> Gwiza AI</button>
         <button className={tab === 'settings' ? 'active' : ''} onClick={() => setTab('settings')}><span className="nav-symbol"><SettingsIcon size={16}/></span> Settings</button>
-        <button onClick={exportWorkbook} disabled={exporting}><span className="nav-symbol"><Download size={16}/></span> Download Excel</button>
+        <div className="download-menu download-menu-sidebar">
+          <button type="button" onClick={() => setDownloadMenuOpen((open) => !open)} disabled={exporting}><span className="nav-symbol"><Download size={16}/></span> Download data</button>
+          {downloadMenuOpen && <div className="download-menu-panel" role="menu" aria-label="Download options"><button type="button" className="download-option" onClick={exportWorkbook}><FileText size={15}/>Download Excel data</button><button type="button" className="download-option" onClick={exportOverviewPdf}><BarChart3 size={15}/>Download graph report (PDF)</button></div>}
+        </div>
       </nav>
       <div className="sidebar-bottom">
         <div className="admin-profile"><span className="admin-avatar">{(session.data.email || 'A').slice(0,1).toUpperCase()}</span><span><strong>Research admin</strong><small>{session.data.email}</small></span></div>
@@ -294,7 +342,7 @@ function Admin() {
       </div>
     </aside>
     <main className="admin-main">
-      <header className="admin-top"><div className="crumb">GWIZA RESEARCH <span>/</span> {tab.toUpperCase()}</div><button className="button button-soft button-small" onClick={exportWorkbook} disabled={exporting}><Download size={16}/>{exporting ? 'Preparing…' : 'Download Excel'}</button></header>
+      <header className="admin-top"><div className="crumb">GWIZA RESEARCH <span>/</span> {tab.toUpperCase()}</div><div className="download-menu"><button className="button button-soft button-small" onClick={() => setDownloadMenuOpen((open) => !open)} disabled={exporting}><Download size={16}/>Download data <ChevronDown size={14}/></button>{downloadMenuOpen && <div className="download-menu-panel" role="menu" aria-label="Download options"><button type="button" className="download-option" onClick={exportWorkbook}><FileText size={15}/>Download Excel data</button><button type="button" className="download-option" onClick={exportOverviewPdf}><BarChart3 size={15}/>Download graph report (PDF)</button></div>}</div></header>
       {feedback && <div className="admin-feedback" role="status">{feedback}<button aria-label="Dismiss message" onClick={() => setFeedback('')}><X size={15}/></button></div>}
       {tab === 'overview' && <Overview overview={overview} onRetry={() => overview.refetch()} onResponses={() => setTab('responses')}/>}
       {tab === 'responses' && <section className="admin-section">
@@ -432,6 +480,14 @@ function Overview({ overview, onRetry, onResponses }: { overview: UseQueryResult
     { title: 'Responses by school', data: d.schools },
     { title: 'Student respondents by region', data: d.regions },
     { title: 'School setting', data: d.schoolSettings },
+    { title: 'School status', data: d.schoolStatus },
+    { title: 'Gender status', data: d.genderStatus },
+    { title: 'School psychologist access', data: d.schoolPsychologist },
+    { title: 'Mental health history', data: d.mentalHealthHistory },
+    { title: 'Financial support', data: d.financialSupport },
+    { title: 'Family size', data: d.familySize },
+    { title: 'Family situation', data: d.familyStatus },
+    { title: 'School year', data: d.schoolYear },
     { title: 'Challenges reported', data: d.challenges },
     { title: 'School support rating', data: d.supportRatings },
     { title: 'Help-seeking comfort', data: d.helpSeekingComfort },
@@ -444,8 +500,10 @@ function Overview({ overview, onRetry, onResponses }: { overview: UseQueryResult
     <div className="admin-page-heading"><div><span className="section-index">THE RESEARCH, SO FAR</span><h1 className="serif">Overview</h1><p>A live view of responses collected by the GWIZA team, including school-level counts.</p></div><span className="latest-update">Latest response <strong>{d.latestSubmission ? new Date(d.latestSubmission).toLocaleString() : 'None yet'}</strong></span></div>
     <div className="metric-grid">{tiles.map((item) => <article className="metric-card" key={item.label}><span>{item.label}</span><strong>{item.value.toLocaleString()}</strong></article>)}</div>
     {d.totalResponses ? <>
-      <div className="chart-grid">{sets.slice(0, 4).map((set) => <ChartPanel key={set.title} title={set.title} data={set.data}/>)}</div>
-      <details className="additional-charts"><summary>Additional research breakdowns <ChevronDown size={16}/></summary><div className="chart-grid">{sets.slice(4).map((set) => <ChartPanel key={set.title} title={set.title} data={set.data}/>)}</div></details>
+      <div id="gwiza-overview-report" className="overview-report-export">
+        <div className="chart-grid">{sets.slice(0, 4).map((set) => <ChartPanel key={set.title} title={set.title} data={set.data}/>)}</div>
+        <details className="additional-charts"><summary>Additional research breakdowns <ChevronDown size={16}/></summary><div className="chart-grid">{sets.slice(4).map((set) => <ChartPanel key={set.title} title={set.title} data={set.data}/>)}</div></details>
+      </div>
     </> : <EmptyState title="No responses yet." body="Once participants complete the survey, the research overview will begin to take shape." action={<button className="text-link-button" onClick={onResponses}>View response records <ArrowRight size={15}/></button>}/>}
   </section>;
 }

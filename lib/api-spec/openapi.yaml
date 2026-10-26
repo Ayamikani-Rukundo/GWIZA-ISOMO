@@ -344,6 +344,38 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CountItem"
+        schoolStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        genderStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        schoolPsychologist:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        mentalHealthHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        financialSupport:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        familySize:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        familyStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
+        schoolYear:
+          type: array
+          items:
+            $ref: "#/components/schemas/CountItem"
         challenges:
           type: array
           items:
@@ -380,6 +412,14 @@ components:
         - regions
         - schoolSettings
         - schools
+        - schoolStatus
+        - genderStatus
+        - schoolPsychologist
+        - mentalHealthHistory
+        - financialSupport
+        - familySize
+        - familyStatus
+        - schoolYear
         - challenges
         - supportRatings
         - helpSeekingComfort

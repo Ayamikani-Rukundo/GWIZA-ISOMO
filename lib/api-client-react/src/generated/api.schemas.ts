@@ -70,6 +70,14 @@ export interface AdminOverview {
   regions: CountItem[];
   schoolSettings: CountItem[];
   schools: CountItem[];
+  schoolStatus: CountItem[];
+  genderStatus: CountItem[];
+  schoolPsychologist: CountItem[];
+  mentalHealthHistory: CountItem[];
+  financialSupport: CountItem[];
+  familySize: CountItem[];
+  familyStatus: CountItem[];
+  schoolYear: CountItem[];
   challenges: CountItem[];
   supportRatings: CountItem[];
   helpSeekingComfort: CountItem[];
