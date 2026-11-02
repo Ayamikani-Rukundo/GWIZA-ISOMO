@@ -4,7 +4,7 @@ import { Route, Switch, Link, useLocation } from 'wouter';
 import { ArrowDown, ArrowLeft, ArrowRight, BarChart3, BookOpen, Check, ChevronDown, CircleHelp, Download, FileText, LockKeyhole, LogOut, Menu, Settings as SettingsIcon, ShieldCheck, Sparkles, Trash2, Users, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { getGetAdminOverviewQueryKey, getGetAdminSessionQueryKey, getHealthCheckQueryKey, getListAdminSubmissionsQueryKey, getListQualitativeResponsesQueryKey, useAdminLogin, useAdminLogout, useCreateSurveySubmission, useDeleteAdminSubmission, useGetAdminOverview, useGetAdminSession, useHealthCheck, useListAdminSubmissions, useListQualitativeResponses } from '@workspace/api-client-react';
 import type { AdminOverview, RespondentType, SurveySubmission } from '@workspace/api-client-react';
 import NotFound from '@/pages/not-found';
@@ -510,7 +510,13 @@ function Overview({ overview, onRetry, onResponses }: { overview: UseQueryResult
 function ChartPanel({ title, data }: { title: string; data: { label: string; count: number }[] }) {
   const isDonut = ['Respondents by type', 'School setting', 'Digital comfort'].includes(title);
   const colors = ['#315f4b', '#6f9c9c', '#96a879', '#c1a36b', '#b66c5f', '#7792aa'];
-  return <article className="chart-panel"><h2>{title}</h2>{data.length ? isDonut ? <div className="donut-layout"><div className="donut-plot"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={data} dataKey="count" nameKey="label" innerRadius="52%" outerRadius="82%" paddingAngle={2}>{data.map((item, index) => <Cell key={item.label} fill={colors[index % colors.length]}/>)}</Pie><Tooltip/></PieChart></ResponsiveContainer></div><div className="donut-legend">{data.map((item, index) => <div key={item.label}><i style={{ backgroundColor: colors[index % colors.length] }}/><span>{item.label}</span><strong>{item.count}</strong></div>)}</div></div> : <ResponsiveContainer width="100%" height={Math.max(190, data.length * 31)}><BarChart data={data} layout="vertical" margin={{ top: 2, right: 12, bottom: 2, left: 4 }}><CartesianGrid horizontal={false} stroke="#e8ece5"/><XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }}/><YAxis type="category" dataKey="label" width={145} tick={{ fontSize: 10 }}/><Tooltip/><Bar dataKey="count" fill="#507d62" radius={[0, 4, 4, 0]}/></BarChart></ResponsiveContainer> : <div className="chart-empty">No responses recorded in this group yet.</div>}</article>;
+  const chartTotal = data.reduce((total, item) => total + item.count, 0);
+  const formatShare = (count: number) => formatPercent(chartTotal > 0 ? count / chartTotal : 0);
+  const tooltipFormatter = (value: number | string) => {
+    const count = Number(value);
+    return [`${count.toLocaleString()} (${formatShare(count)})`, 'Answers'];
+  };
+  return <article className="chart-panel"><h2>{title}</h2><p className="chart-caption">Percentage of answers counted in this chart.</p>{data.length ? isDonut ? <div className="donut-layout"><div className="donut-plot"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={data} dataKey="count" nameKey="label" innerRadius="52%" outerRadius="82%" paddingAngle={2}>{data.map((item, index) => <Cell key={item.label} fill={colors[index % colors.length]}/>)}</Pie><Tooltip formatter={tooltipFormatter}/></PieChart></ResponsiveContainer></div><div className="donut-legend">{data.map((item, index) => <div key={item.label}><i style={{ backgroundColor: colors[index % colors.length] }}/><span>{item.label}</span><strong>{item.count.toLocaleString()} · {formatShare(item.count)}</strong></div>)}</div></div> : <ResponsiveContainer width="100%" height={Math.max(190, data.length * 31)}><BarChart data={data} layout="vertical" margin={{ top: 2, right: 55, bottom: 2, left: 4 }}><CartesianGrid horizontal={false} stroke="#e8ece5"/><XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }}/><YAxis type="category" dataKey="label" width={145} tick={{ fontSize: 10 }}/><Tooltip formatter={tooltipFormatter}/><Bar dataKey="count" fill="#507d62" radius={[0, 4, 4, 0]}><LabelList dataKey="count" position="right" formatter={(value: number) => formatShare(value)}/></Bar></BarChart></ResponsiveContainer> : <div className="chart-empty">No responses recorded in this group yet.</div>}</article>;
 }
 function EmptyState({ title, body, action }: { title: string; body: string; action?: ReactNode }) {
   return <div className="empty-state"><div className="empty-mark"><Users size={23}/></div><h2 className="serif">{title}</h2><p>{body}</p>{action}</div>;
@@ -523,6 +529,9 @@ function SkeletonRows() {
 }
 function countType(items: { label: string; count: number }[], type: string) {
   return items.find((i) => i.label.toLowerCase() === type)?.count ?? 0;
+}
+function formatPercent(value: number) {
+  return new Intl.NumberFormat(undefined, { style: 'percent', maximumFractionDigits: 1 }).format(value);
 }
 function labelize(s: string) {
   return s.replace(/([A-Z])/g, ' $1').replace(/[_-]/g, ' ').replace(/^./, (x) => x.toUpperCase());
