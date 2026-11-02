@@ -476,20 +476,20 @@ function Overview({ overview, onRetry, onResponses }: { overview: UseQueryResult
     { label: 'Other voices', value: countType(d.respondentTypes, 'other') },
   ];
   const sets = [
-    { title: 'Respondents by type', data: d.respondentTypes },
     { title: 'Responses by school', data: d.schools },
+    { title: 'Respondents by type', data: d.respondentTypes },
     { title: 'Student respondents by region', data: d.regions },
     { title: 'School setting', data: d.schoolSettings },
     { title: 'School status', data: d.schoolStatus },
     { title: 'Gender status', data: d.genderStatus },
-    { title: 'School psychologist access', data: d.schoolPsychologist },
-    { title: 'Mental health history', data: d.mentalHealthHistory },
-    { title: 'Financial support', data: d.financialSupport },
     { title: 'Family size', data: d.familySize },
     { title: 'Family situation', data: d.familyStatus },
     { title: 'School year', data: d.schoolYear },
+    { title: 'Mental health history', data: d.mentalHealthHistory },
     { title: 'Challenges reported', data: d.challenges },
     { title: 'School support rating', data: d.supportRatings },
+    { title: 'School psychologist access', data: d.schoolPsychologist },
+    { title: 'Financial support', data: d.financialSupport },
     { title: 'Help-seeking comfort', data: d.helpSeekingComfort },
     { title: 'Barriers to seeking support', data: d.barriers },
     { title: 'Preferred support', data: d.preferredSupportTypes },
@@ -501,14 +501,14 @@ function Overview({ overview, onRetry, onResponses }: { overview: UseQueryResult
     <div className="metric-grid">{tiles.map((item) => <article className="metric-card" key={item.label}><span>{item.label}</span><strong>{item.value.toLocaleString()}</strong></article>)}</div>
     {d.totalResponses ? <>
       <div id="gwiza-overview-report" className="overview-report-export">
-        <div className="chart-grid">{sets.slice(0, 4).map((set) => <ChartPanel key={set.title} title={set.title} data={set.data}/>)}</div>
-        <details className="additional-charts"><summary>Additional research breakdowns <ChevronDown size={16}/></summary><div className="chart-grid">{sets.slice(4).map((set) => <ChartPanel key={set.title} title={set.title} data={set.data}/>)}</div></details>
+        <div className="chart-grid">{sets.map((set) => <ChartPanel key={set.title} title={set.title} data={set.data}/>)}</div>
       </div>
     </> : <EmptyState title="No responses yet." body="Once participants complete the survey, the research overview will begin to take shape." action={<button className="text-link-button" onClick={onResponses}>View response records <ArrowRight size={15}/></button>}/>}
   </section>;
 }
 function ChartPanel({ title, data }: { title: string; data: { label: string; count: number }[] }) {
   const isDonut = ['Respondents by type', 'School setting', 'Digital comfort'].includes(title);
+  const isSchoolChart = title === 'Responses by school';
   const colors = ['#315f4b', '#6f9c9c', '#96a879', '#c1a36b', '#b66c5f', '#7792aa'];
   const chartTotal = data.reduce((total, item) => total + item.count, 0);
   const formatShare = (count: number) => formatPercent(chartTotal > 0 ? count / chartTotal : 0);
@@ -516,7 +516,7 @@ function ChartPanel({ title, data }: { title: string; data: { label: string; cou
     const count = Number(value);
     return [`${count.toLocaleString()} (${formatShare(count)})`, 'Answers'];
   };
-  return <article className="chart-panel"><h2>{title}</h2><p className="chart-caption">Percentage of answers counted in this chart.</p>{data.length ? isDonut ? <div className="donut-layout"><div className="donut-plot"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={data} dataKey="count" nameKey="label" innerRadius="52%" outerRadius="82%" paddingAngle={2}>{data.map((item, index) => <Cell key={item.label} fill={colors[index % colors.length]}/>)}</Pie><Tooltip formatter={tooltipFormatter}/></PieChart></ResponsiveContainer></div><div className="donut-legend">{data.map((item, index) => <div key={item.label}><i style={{ backgroundColor: colors[index % colors.length] }}/><span>{item.label}</span><strong>{item.count.toLocaleString()} · {formatShare(item.count)}</strong></div>)}</div></div> : <ResponsiveContainer width="100%" height={Math.max(190, data.length * 31)}><BarChart data={data} layout="vertical" margin={{ top: 2, right: 55, bottom: 2, left: 4 }}><CartesianGrid horizontal={false} stroke="#e8ece5"/><XAxis type="number" allowDecimals={false} tick={{ fontSize: 10 }}/><YAxis type="category" dataKey="label" width={145} tick={{ fontSize: 10 }}/><Tooltip formatter={tooltipFormatter}/><Bar dataKey="count" fill="#507d62" radius={[0, 4, 4, 0]}><LabelList dataKey="count" position="right" formatter={(value: number) => formatShare(value)}/></Bar></BarChart></ResponsiveContainer> : <div className="chart-empty">No responses recorded in this group yet.</div>}</article>;
+  return <article className={`chart-panel${isSchoolChart ? ' chart-panel-wide' : ''}`}><h2>{title}</h2><p className="chart-caption">Percentage of answers counted in this chart.</p>{data.length ? isDonut ? <div className="donut-layout"><div className="donut-plot"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={data} dataKey="count" nameKey="label" innerRadius="52%" outerRadius="82%" paddingAngle={2}>{data.map((item, index) => <Cell key={item.label} fill={colors[index % colors.length]}/>)}</Pie><Tooltip formatter={tooltipFormatter}/></PieChart></ResponsiveContainer></div><div className="donut-legend">{data.map((item, index) => <div key={item.label}><i style={{ backgroundColor: colors[index % colors.length] }}/><span>{item.label}</span><strong>{item.count.toLocaleString()} · {formatShare(item.count)}</strong></div>)}</div></div> : <ResponsiveContainer width="100%" height={Math.max(isSchoolChart ? 300 : 190, data.length * (isSchoolChart ? 40 : 31))}><BarChart data={data} layout="vertical" margin={{ top: 2, right: 42, bottom: 2, left: 4 }}><CartesianGrid horizontal={false} stroke="#e8ece5"/><XAxis type="number" allowDecimals={false} tick={{ fontSize: 9 }}/><YAxis type="category" dataKey="label" width={isSchoolChart ? 235 : 145} interval={0} tick={{ fontSize: isSchoolChart ? 9 : 10 }}/><Tooltip formatter={tooltipFormatter}/><Bar dataKey="count" fill="#507d62" radius={[0, 4, 4, 0]}><LabelList dataKey="count" position="right" formatter={(value: number) => formatShare(value)} style={{ fontSize: 10, fill: '#607267' }}/></Bar></BarChart></ResponsiveContainer> : <div className="chart-empty">No responses recorded in this group yet.</div>}</article>;
 }
 function EmptyState({ title, body, action }: { title: string; body: string; action?: ReactNode }) {
   return <div className="empty-state"><div className="empty-mark"><Users size={23}/></div><h2 className="serif">{title}</h2><p>{body}</p>{action}</div>;
